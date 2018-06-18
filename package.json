@@ -18,13 +18,15 @@
     "reinstall": "npm install",
     "transpile": "babel --presets=@babel/env --out-dir=app src",
     "generate": "claudia generate-serverless-express-proxy --express-module app/index",
-    "deploy:aws": "claudia create --profile pwnage --handler lambda.handler --deploy-proxy-api --region $npm_package_config_aws_region --version production --set-env-from-json env.json",
-    "upgrade:aws": "claudia update --profile pwnage --handler lambda.handler --deploy-proxy-api --region $npm_package_config_aws_region --version production --set-env-from-json env.json",
+    "deploy:aws": "claudia create --profile $npm_package_config_aws_profile --handler lambda.handler --deploy-proxy-api --region $npm_package_config_aws_region --version $npm_package_config_aws_environment --set-env-from-json env.json",
+    "upgrade:aws": "claudia update --profile $npm_package_config_aws_profile --handler lambda.handler --deploy-proxy-api --region $npm_package_config_aws_region --version $npm_package_config_aws_environment --set-env-from-json env.json",
     "deploy": "npm-run-all -s clean reinstall transpile generate deploy:aws",
     "update": "npm-run-all -s clean reinstall transpile generate upgrade:aws"
   },
   "config": {
-    "aws_region": "eu-central-1"
+    "aws_region": "eu-central-1",
+    "aws_environment": "development",
+    "aws_profile": "pwnage"
   },
   "files": [
     "app",
