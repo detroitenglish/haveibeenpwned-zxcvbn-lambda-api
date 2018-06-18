@@ -1,6 +1,10 @@
 # haveibeenpwned-zxcvbn-lambda-api
 Here's a chance to have your very own serverless API endpoint up on AWS Lambda so you can score new user passwords with the Dropbox's fantastic `zxcvbn` library _AND_ check their password against Troy Hunt's [haveibeenpwned](https://haveibeenpwned.com/) database via his APIv2 Range Query endpoint.
 
+![API in Action](.github/pwnage.gif?raw=true "API in Action")
+
+_*NOTE*: this is for the BACKEND API only - how to handle the response client-side is your own monster to slay :dragon_face:_
+
 ## Lazy quick-start
 1. Create an AWS profile with IAM full access, Lambda full access and API Gateway Administrator privileges.
 2. Add the keys to your ~/.aws/credentials file:
