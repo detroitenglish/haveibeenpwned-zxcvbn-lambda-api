@@ -10,43 +10,64 @@ import crypto from 'crypto'
 
 const app = express()
 
+// Parse body as JSON by default
 app.use(bodyParser.json())
 
+// Use headers from reverse proxies as remote source
 app.enable('trust proxy')
 
+// Basic security headers
 app.use(helmet())
 
 const router = express.Router()
 
-const route = r => path.normalize(`${routePrefix}/${r}`)
-
-const endpoint = path.normalize(`/` + (process.env.SCORING_ENDPOINT || '/_score'))
-
 // Health check and/or warm-up endpoint for the function container
 router.get('/_up', (req, res) => res.status(200).json({ ok: true }))
 
+// Set the scoring endpoint
+const endpoint = path.normalize(`/` + (process.env.SCORING_ENDPOINT || '/_score'))
+
+// Util for creating a pwndpasswords range query URL
+const pwnedUrl = p => `https://api.pwnedpasswords.com/range/${p}`
+
 // Password scoring and haveibeenpwned crosscheck endpoint
 router.post(endpoint, async (req, res) => {
+  let message, pwned, ok
+
   const { password } = req.body
+
   if (!password || typeof password !== 'string' || !password.length) {
+    // something's wrong with the input - bail!
     return res.status(400).json({
       ok: false,
       message: `'password' must be a string of length > 0`
     })
   }
-  let message, pwned, ok
-  const pwnedUrl = p => `https://api.pwnedpasswords.com/range/${p}`
+
+  // synchronously score the password, keep the score number
   let { score } = zxcvbn(password)
+
   try {
+    // range query the pwnedpasswords API
     pwned = await pwnedPassword(password)
     ok = true
   } catch (err) {
-    req.log.error(err)
+
+    // something done goofed, log it...
+    console.error(err)
+
     ok = false
-    pwned = 1
+
+    // nuke any values possibly set so we don't return them
+    pwned = void 0
+    score = void 0
+
+    // send reason for failure
     message = err.message
   }
+
   if (pwned) score = 0
+
   return res.status(200).json({ ok, score, pwned, message })
 
   async function pwnedPassword(pw) {
@@ -64,7 +85,7 @@ router.post(endpoint, async (req, res) => {
       method: 'GET',
     })
       .then(result => result.data)
-      .catch(err => {  // something done goofed
+      .catch(err => {
         throw new Error(`Unable to check password pwnage`)
       })
 
@@ -79,10 +100,9 @@ router.post(endpoint, async (req, res) => {
   }
 })
 
-// ====================================================
 const routePrefix = process.env.ROUTE_PREFIX || `/`
+
 app.use(path.normalize(`/` + routePrefix), router)
 
-// =============================================================================
-
+// export for use in lambda handler...
 module.exports = app
