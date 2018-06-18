@@ -1,5 +1,5 @@
 # haveibeenpwned-zxcvbn-lambda-api
-Here's a chance to have your very own serverless API endpoint up on AWS Lambda so you can score new user passwords with the Dropbox's fantastic `zxcvbn` library _AND_ check their password against Troy Hunt's [haveibeenpwned](https://haveibeenpwned.com/) database via his APIv2 Range Query endpoint.
+Here's a chance to have your very own serverless API endpoint up on AWS Lambda so you can score new user passwords with Dropbox's fantastic `zxcvbn` library _AND_ check their password against Troy Hunt's [haveibeenpwned](https://haveibeenpwned.com/) database with a API v2 Range Search.
 
 ![API in Action](.github/pwnage.gif?raw=true "API in Action")
 
@@ -33,7 +33,7 @@ This uses the cool-as-a-cucumber [claudia.js](https://claudiajs.com/documentatio
 
 Following deployment, `claudia.js` prints the AWS config JSON for your freshly deployed Lambda function. The last key `url` gives you an instant and secure route to your function:
 
-Hit the healthcheck/warmup endpoint:
+GET the healthcheck/warmup endpoint:
 ```
     https://{{GENERATED_ID}}.execute-api.{{AWS_REGION}}.amazonaws.com/production/{{ROUTE_PREFIX}}/_up
 ```
