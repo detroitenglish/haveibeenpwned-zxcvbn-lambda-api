@@ -1,5 +1,5 @@
 # haveibeenpwned-zxcvbn-lambda-api
-Here's a chance to have your very own serverless API endpoint up on AWS Lambda so you can score new user passwords with Dropbox's fantastic `zxcvbn` library _AND_ check their password against Troy Hunt's [haveibeenpwned](https://haveibeenpwned.com/) database with a API v2 Range Search.
+Your very own serverless API on AWS-Lambda to score users' new passwords with Dropbox's fantastic `zxcvbn` library _AND_ check their password against Troy Hunt's [haveibeenpwned](https://haveibeenpwned.com/) breached passwords database using his `pwnedpasswords` Range Search API.
 
 ![API in Action](.github/pwnage.gif?raw=true "API in Action")
 
@@ -17,7 +17,7 @@ _**NOTE**: this is for the BACKEND API only - how to handle the response client-
 
 1. Rename `example.env.json` to `env.json` and change the values to whatever suits your fancy. Note that all entries must be strings, less you anger the Lambda gods.
 2. Set your AWS region of choice with `npm config set haveibeenpwned-zxcvbn-lambda-api:aws_region some-aws-region` (default is `eu-central-1`)
-3. Set your deployment environment for AWS API Gateway with `npm config set haveibeenpwned-zxcvbn-lambda-api:aws_region devOrTestingOrProdOrSomething` (default is `development`)
+3. Set your deployment environment for AWS API Gateway with `npm config set haveibeenpwned-zxcvbn-lambda-api:aws_profile staging` (default is `development`)
 4. Install dependencies with `npm install`
 5. Launch 🚀 with `npm run deploy`
 6. Change whatever you need to change in the AWS API Gateway to make this work with your own application.
@@ -27,11 +27,11 @@ Update the Lambda API with any changes you make to the source by running `npm ru
 
 
 ### Sorcery
-This uses the cool-as-a-cucumber [claudia.js](https://claudiajs.com/documentation.html) for handling AWS deployment - please refer to the claudia.js docs to learn more about this serverless voodoo magic.
+We're using the cool-as-a-cucumber [claudia.js](https://claudiajs.com/documentation.html) for end-to-end Lambda and API Gateway deployment - please refer to the claudia.js docs to learn more about this serverless voodoo magic.
 
 ## How to Use
 
-Following deployment, `claudia.js` prints the AWS config JSON for your freshly deployed Lambda function. The last key `url` gives you an instant and secure route to your function:
+Following successful deployment or update, `claudia.js` prints the AWS config JSON for your freshly deployed Lambda function. The last key `url` gives you an instant and secure route to your function:
 
 GET the healthcheck/warmup endpoint:
 ```
