@@ -73,4 +73,4 @@ Handling user passwords is no laughing matter, so handle them with care and resp
 That being said: just like your users, assume that I have no idea what I'm doing - REVIEW THE SOURCE, and use this at your own risk!
 
 ### License
-Licensed under [GLWTPL](https://raw.githubusercontent.com/me-shaon/GLWTPL/master/LICENSE)
+MIT
