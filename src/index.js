@@ -28,6 +28,12 @@ router.get('/_up', (req, res) => res.status(200).json({ ok: true }))
 // Password scoring and haveibeenpwned crosscheck endpoint
 router.post(endpoint, async (req, res) => {
   const { password } = req.body
+  if (!password || typeof password !== 'string' || !password.length) {
+    return res.status(400).json({
+      ok: false,
+      message: `'password' must be a string of length > 0`
+    })
+  }
   let message, pwned, ok
   const pwnedUrl = p => `https://api.pwnedpasswords.com/range/${p}`
   let { score } = zxcvbn(password)
