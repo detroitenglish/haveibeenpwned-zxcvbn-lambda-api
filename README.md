@@ -38,13 +38,15 @@ The API will respond with `ok` indicating successful scoring and range-query, a 
     "pwned": 56491
 }
 ```
-
-
 ### Good to Know
 The health-check endpoint `/_up` is included by default; this also serves as a handy means to warm-up a Lambda function container before your users start feeding you input.
 
 ### Disclaimer
 I am not affiliated with Amazon, Troy Hunt, Dropbox, haveibeenpwned or any combination thereof. People just seemed to think that this was neat, and this was the easiest way I could come up with to share it.
+
+Handling user passwords is no laughing matter, so handle them with care and respect.
+
+That being said: just like your users, assume that I have no idea what I'm doing - REVIEW THE SOURCE, and use this at your own risk!
 
 ### License
 Licensed under [GLWTPL](https://raw.githubusercontent.com/me-shaon/GLWTPL/master/LICENSE)
