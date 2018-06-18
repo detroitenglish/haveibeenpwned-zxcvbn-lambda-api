@@ -51,7 +51,9 @@ POST the input **over HTTPS** as JSON using the field `password` like so:
 }
 ```
 ### Response
-The API will respond with `ok` indicating successful scoring and range-query, a `score` of 0 through 4 per `zxcvbn`, and `pwned` indicating the number times the input appears in the `haveibeenpwned` database. Note that if `pwned` is greater than 0, `score` will always be 0.
+The API will respond with `ok` indicating successful scoring and range-query, a `score` of 0 through 4 per `zxcvbn`, and `pwned` indicating the number times the input appears in the `haveibeenpwned` database.
+
+By default, if `pwned` is greater than 0, `score` will always return 0. You can override this behavior by settings `"ALWAYS_RETURN_SCORE": true` in `env.json`
 ```
 {
     "ok": true,
