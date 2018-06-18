@@ -66,7 +66,7 @@ router.post(endpoint, async (req, res) => {
     message = err.message
   }
 
-  if (pwned && !process.env.ALWAYS_RETURN_SCORE) score = 0
+  if (pwned && process.env.ALWAYS_RETURN_SCORE !== "true") score = 0
 
   return res.status(200).json({ ok, score, pwned, message })
 

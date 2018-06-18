@@ -15,12 +15,12 @@ _**NOTE**: this is for the BACKEND API only - how to handle the response client-
     ```
     If you want to use another profile namespace, set it with `npm config set haveibeenpwned-zxcvbn-lambda-api:aws_profile some-aws-profile`  (default is `pwnage`)
 
-3. Rename `example.env.json` to `env.json` and change the values to whatever suits your fancy.
-4. Set your AWS region of choice with `npm config set haveibeenpwned-zxcvbn-lambda-api:aws_region some-aws-region` (default is `eu-central-1`)
-5. Set your deployment environment for AWS API Gateway with `npm config set haveibeenpwned-zxcvbn-lambda-api:aws_region devOrTestingOrProdOrSomething` (default is `development`)
-6. Install dependencies with `npm install`
-7. Launch 🚀 with `npm run deploy`
-8. Change whatever you need to change in the AWS API Gateway to make this work with your own application.
+1. Rename `example.env.json` to `env.json` and change the values to whatever suits your fancy. Note that all entries must be strings, less you anger the Lambda gods.
+2. Set your AWS region of choice with `npm config set haveibeenpwned-zxcvbn-lambda-api:aws_region some-aws-region` (default is `eu-central-1`)
+3. Set your deployment environment for AWS API Gateway with `npm config set haveibeenpwned-zxcvbn-lambda-api:aws_region devOrTestingOrProdOrSomething` (default is `development`)
+4. Install dependencies with `npm install`
+5. Launch 🚀 with `npm run deploy`
+6. Change whatever you need to change in the AWS API Gateway to make this work with your own application.
 
 ### Updating
 Update the Lambda API with any changes you make to the source by running `npm run update`
@@ -53,7 +53,6 @@ POST the input **over HTTPS** as JSON using the field `password` like so:
 ### Response
 The API will respond with `ok` indicating successful scoring and range-query, a `score` of 0 through 4 per `zxcvbn`, and `pwned` indicating the number times the input appears in the `haveibeenpwned` database.
 
-By default, if `pwned` is greater than 0, `score` will always return 0. You can override this behavior by settings `"ALWAYS_RETURN_SCORE": true` in `env.json`
 ```
 {
     "ok": true,
@@ -61,6 +60,8 @@ By default, if `pwned` is greater than 0, `score` will always return 0. You can 
     "pwned": 56491
 }
 ```
+By default, if `pwned` is greater than 0, `score` will always return 0. You can override this behavior by settings `"ALWAYS_RETURN_SCORE": "true"` in `env.json`
+
 ### Good to Know
 The health-check endpoint `/_up` is included by default; this also serves as a handy means to warm-up a Lambda function container before your users start feeding you input.
 
