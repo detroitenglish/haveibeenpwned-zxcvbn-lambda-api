@@ -7,6 +7,7 @@ import helmet from 'helmet'
 import zxcvbn from 'zxcvbn'
 import axios from 'axios'
 import crypto from 'crypto'
+import lru from 'tiny-lru'
 
 const app = express()
 
@@ -27,12 +28,16 @@ router.get('/_up', (req, res) => res.status(200).json({ ok: true }))
 // Set the scoring endpoint
 const endpoint = path.normalize(`/` + (process.env.SCORING_ENDPOINT || '/_score'))
 
-// Util for creating a pwndpasswords range query URL
-const pwnedUrl = p => `https://api.pwnedpasswords.com/range/${p}`
+// Set the API route prefix
+const routePrefix = process.env.ROUTE_PREFIX || `/`
+
+// create a mini cache of max 1000 entries, ignore events, expire entries after 5 minutes
+// but auto-renew entry ttl whenever accessed
+const cache = lru(1e3, false, 3e5)
 
 // Password scoring and haveibeenpwned crosscheck endpoint
 router.post(endpoint, async (req, res) => {
-  let message, pwned, ok
+  let ok, score, message
 
   const { password } = req.body
 
@@ -44,65 +49,84 @@ router.post(endpoint, async (req, res) => {
     })
   }
 
-  // synchronously score the password, keep the score number
-  let { score } = zxcvbn(password)
+  // try the lru-cache first
+  const cachedResult = cache.get(password)
 
-  try {
-    // range query the pwnedpasswords API
-    pwned = await pwnedPassword(password)
-    ok = true
-  } catch (err) {
-
-    // something done goofed, log it...
-    console.error(err)
-
-    ok = false
-
-    // nuke any values possibly set so we don't return them
-    pwned = void 0
-    score = void 0
-
-    // send reason for failure
-    message = err.message
+  if (cachedResult) {
+    // hit! send cached result, entry ttl has been auto-renewed
+    res.set('x-cached-result', 1)
+    return res.status(200).json(cachedResult)
   }
 
-  if (pwned && process.env.ALWAYS_RETURN_SCORE !== "true") score = 0
+  // nope, not in cache
+  res.set('x-cached-result', 0)
+
+  // so run both tasks in parallel
+  let [strength, pwned] = await Promise.all([
+    zxcvbn(password),
+    pwnedPassword(password),
+  ])
+    .catch(err => {
+      // something went kaputt, log it
+      console.error(err)
+
+      message = err.message || 'Unknown error'
+
+      // you get nothing - good day, sir!
+      return Array(2)
+    })
+
+  // validate results
+  ok = strength.hasOwnProperty('score') && Number.isSafeInteger(pwned)
+
+  if (ok) {
+    score = strength.score
+    if (pwned && process.env.ALWAYS_RETURN_SCORE !== "true") score = 0
+
+    // cache our funky-fresh results
+    cache.set(password, { ok, score, pwned })
+  }
 
   return res.status(200).json({ ok, score, pwned, message })
-
-  async function pwnedPassword(pw) {
-    const hash = Array.from(
-      await crypto
-        .createHash('sha1')
-        .update(pw)
-        .digest('hex')
-        .toUpperCase()
-    )
-    const prefix = hash.splice(0, 5).join('')
-    const suffix = hash.join('')
-    let result = await axios({
-      url: pwnedUrl(prefix),
-      method: 'GET',
-    })
-      .then(result => result.data)
-      .catch(err => {
-        throw new Error(`Unable to check password pwnage`)
-      })
-
-    if (!result.includes(suffix)) {
-      return 0
-    }
-
-    result = result.split('\r\n')
-    const match = result.find(r => r.includes(suffix))
-    const hits = match.split(':')[1]
-    return +hits
-  }
 })
-
-const routePrefix = process.env.ROUTE_PREFIX || `/`
 
 app.use(path.normalize(`/` + routePrefix), router)
 
 // export for use in lambda handler...
 module.exports = app
+
+
+// Util for creating a pwndpasswords range query URL
+const pwnedUrl = p => `https://api.pwnedpasswords.com/range/${p}`
+
+// Range-search input against pwnedpasswords
+async function pwnedPassword(pw) {
+  const hash = Array.from(
+    await crypto
+      .createHash('sha1')
+      .update(pw)
+      .digest('hex')
+      .toUpperCase()
+  )
+  const prefix = hash.splice(0, 5).join('')
+  const suffix = hash.join('')
+
+  let result = await axios({
+    url: pwnedUrl(prefix),
+    method: 'GET',
+  })
+    .then(result => result.data)
+    .catch(err => {
+      throw new Error(`Unable to check password pwnage`)
+    })
+
+  if (!result.includes(suffix)) {
+    return 0
+  }
+
+  result = result.split('\r\n')
+  const match = result.find(r => r.includes(suffix))
+  const hits = match.split(':')[1]
+
+  return +hits
+}
