@@ -5,16 +5,26 @@
   "version": "0.0.2",
   "main": "lambda.js",
   "license": "GLWTPL",
-  "homepage": "https://github.com/detroitenglish/haveibeenpwned-zxcvbn-lambda",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/detroitenglish/haveibeenpwned-zxcvbn-lambda-api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/detroitenglish/haveibeenpwned-zxcvbn-lambda-api/issues"
+  },
+  "homepage": "https://github.com/detroitenglish/haveibeenpwned-zxcvbn-lambda-api",
   "scripts": {
     "clean": "cross-env del-cli ./app/* package-lock.json lambda.js",
     "reinstall": "npm install",
     "transpile": "babel --presets=@babel/env --out-dir=app src",
     "generate": "claudia generate-serverless-express-proxy --express-module app/index",
-    "deploy:aws": "claudia create --profile pwnage --handler lambda.handler --deploy-proxy-api --region eu-central-1 --version production --set-env-from-json env.json",
-    "upgrade:aws": "claudia update --profile pwnage --handler lambda.handler --deploy-proxy-api --region eu-central-1 --version production --set-env-from-json env.json",
+    "deploy:aws": "claudia create --profile pwnage --handler lambda.handler --deploy-proxy-api --region $npm_package_config_aws_region --version production --set-env-from-json env.json",
+    "upgrade:aws": "claudia update --profile pwnage --handler lambda.handler --deploy-proxy-api --region $npm_package_config_aws_region --version production --set-env-from-json env.json",
     "deploy": "npm-run-all -s clean reinstall transpile generate deploy:aws",
     "update": "npm-run-all -s clean reinstall transpile generate upgrade:aws"
+  },
+  "config": {
+    "aws_region": "eu-central-1"
   },
   "files": [
     "app",
@@ -38,5 +48,8 @@
     "express": "^4.15.4",
     "helmet": "^3.8.1",
     "zxcvbn": "^4.4.2"
+  },
+  "engines": {
+    "node": ">=6"
   }
 }

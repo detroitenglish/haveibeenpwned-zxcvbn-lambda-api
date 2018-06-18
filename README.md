@@ -15,9 +15,10 @@ _**NOTE**: this is for the BACKEND API only - how to handle the response client-
     ```
 3. Rename `example.env.json` to `env.json` and change the values to whatever suits your fancy.
 4. Install dependencies with `npm install`
-5. Launch 🚀 with `npm run deploy`
-6. Change whatever you need to change in the AWS API Gateway to make this work with your own application.
-7. Update the Lambda API with any changes you make to the source by running `npm run update`
+5. Set your AWS region of choice with `npm config set haveibeenpwned-zxcvbn-lambda-api:aws_region some-aws-region` (default is `eu-central-1`)
+6. Launch 🚀 with `npm run deploy`
+7. Change whatever you need to change in the AWS API Gateway to make this work with your own application.
+8. Update the Lambda API with any changes you make to the source by running `npm run update`
 
 This uses the cool-as-a-cucumber [claudia.js](https://claudiajs.com/documentation.html) for handling AWS deployment - please refer to the claudia.js docs to learn more about this voodoo.
 
