@@ -1,0 +1,42 @@
+{
+  "name": "haveibeenpwned-zxcvbn-lambda-api",
+  "description": "Score users' new passwords with zxcvbn, check them against the haveibeenpwned database, and rain judgement on users accordingly (no server required)",
+  "author": "Dave Willenberg <dave@detroit-english.de> (https://github.com/detroitenglish)",
+  "version": "0.0.1",
+  "main": "lambda.js",
+  "license": "GLWTPL",
+  "homepage": "https://github.com/detroitenglish/haveibeenpwned-zxcvbn-lambda",
+  "scripts": {
+    "clean": "cross-env del-cli ./app/* package-lock.json lambda.js",
+    "reinstall": "npm install",
+    "transpile": "babel --presets=@babel/env --out-dir=app src",
+    "generate": "claudia generate-serverless-express-proxy --express-module app/index",
+    "deploy:aws": "claudia create --profile pwnage --handler lambda.handler --deploy-proxy-api --region eu-central-1 --version production --set-env-from-json env.json",
+    "upgrade:aws": "claudia update --profile pwnage --handler lambda.handler --deploy-proxy-api --region eu-central-1 --version production --set-env-from-json env.json",
+    "deploy": "npm-run-all -s clean reinstall transpile generate deploy:aws",
+    "update": "npm-run-all -s clean reinstall transpile generate upgrade:aws"
+  },
+  "files": [
+    "app",
+    "lambda.js"
+  ],
+  "devDependencies": {
+    "@babel/cli": "^7.0.0-beta.49",
+    "@babel/core": "^7.0.0-beta.49",
+    "@babel/preset-env": "^7.0.0-beta.49",
+    "aws-sdk": "^2.233.1",
+    "claudia": "^4.0.0",
+    "cross-env": "^5.1.4",
+    "del-cli": "^1.1.0",
+    "npm-run-all": "^4.1.3"
+  },
+  "dependencies": {
+    "@babel/polyfill": "^7.0.0-beta.49",
+    "aws-serverless-express": "^3.2.0",
+    "axios": "^0.18.0",
+    "body-parser": "^1.17.2",
+    "express": "^4.15.4",
+    "helmet": "^3.8.1",
+    "zxcvbn": "^4.4.2"
+  }
+}
