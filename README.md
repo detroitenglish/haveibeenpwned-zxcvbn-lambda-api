@@ -17,7 +17,7 @@ _**NOTE**: this is for the BACKEND API only - how to handle the response client-
 
 1. Rename `example.env.json` to `env.json` and change the values to whatever suits your fancy. Note that all entries must be strings, less you anger the Lambda gods.
 2. Set your AWS region of choice with `npm config set haveibeenpwned-zxcvbn-lambda-api:aws_region some-aws-region` (default is `eu-central-1`)
-3. Set your deployment environment for AWS API Gateway with `npm config set haveibeenpwned-zxcvbn-lambda-api:aws_profile staging` (default is `development`)
+3. Set your deployment environment for AWS API Gateway with `npm config set haveibeenpwned-zxcvbn-lambda-api:aws_environment staging` (default is `development`)
 4. Install dependencies with `npm install`
 5. Launch 🚀 with `npm run deploy`
 6. Change whatever you need to change in the AWS API Gateway to make this work with your own application.
