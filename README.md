@@ -13,16 +13,36 @@ _**NOTE**: this is for the BACKEND API only - how to handle the response client-
     aws_access_key_id = YOUR_ACCESS_KEY
     aws_secret_access_key = YOUR_ACCESS_SECRET
     ```
-3. Rename `example.env.json` to `env.json` and change the values to whatever suits your fancy.
-4. Install dependencies with `npm install`
-5. Set your AWS region of choice with `npm config set haveibeenpwned-zxcvbn-lambda-api:aws_region some-aws-region` (default is `eu-central-1`)
-6. Launch 🚀 with `npm run deploy`
-7. Change whatever you need to change in the AWS API Gateway to make this work with your own application.
-8. Update the Lambda API with any changes you make to the source by running `npm run update`
+    If you want to use another profile namespace, set it with `npm config set haveibeenpwned-zxcvbn-lambda-api:aws_profile some-aws-profile`  (default is `pwnage`)
 
-This uses the cool-as-a-cucumber [claudia.js](https://claudiajs.com/documentation.html) for handling AWS deployment - please refer to the claudia.js docs to learn more about this voodoo.
+3. Rename `example.env.json` to `env.json` and change the values to whatever suits your fancy.
+4. Set your AWS region of choice with `npm config set haveibeenpwned-zxcvbn-lambda-api:aws_region some-aws-region` (default is `eu-central-1`)
+5. Set your deployment environment for AWS API Gateway with `npm config set haveibeenpwned-zxcvbn-lambda-api:aws_region devOrTestingOrProdOrSomething` (default is `development`)
+6. Install dependencies with `npm install`
+7. Launch 🚀 with `npm run deploy`
+8. Change whatever you need to change in the AWS API Gateway to make this work with your own application.
+
+### Updating
+Update the Lambda API with any changes you make to the source by running `npm run update`
+
+
+### Sorcery
+This uses the cool-as-a-cucumber [claudia.js](https://claudiajs.com/documentation.html) for handling AWS deployment - please refer to the claudia.js docs to learn more about this serverless voodoo magic.
 
 ## How to Use
+
+Following deployment, `claudia.js` prints the AWS config JSON for your freshly deployed Lambda function. The last key `url` gives you an instant and secure route to your function:
+
+Hit the healthcheck/warmup endpoint:
+```
+    https://{{GENERATED_ID}}.execute-api.{{AWS_REGION}}.amazonaws.com/production/{{ROUTE_PREFIX}}/_up
+```
+
+Or start firing off POST (see below) requests to:
+```
+    https://{{GENERATED_ID}}.execute-api.{{AWS_REGION}}.amazonaws.com/production/{{ROUTE_PREFIX}}/{{SCORING_ENDPOINT}}
+```
+
 ### Request
 POST the input **over HTTPS** as JSON using the field `password` like so:
 ```
