@@ -20,11 +20,22 @@ _**NOTE**: this is for the BACKEND API only - how to handle the response client-
 3. Set your deployment environment for AWS API Gateway with `npm config set haveibeenpwned-zxcvbn-lambda-api:aws_environment staging` (default is `development`)
 4. Install dependencies with `npm install`
 5. Launch 🚀 with `npm run deploy`
-6. Change whatever you need to change in the AWS API Gateway to make this work with your own application.
+6. Change whatever you need to change in the AWS API Gateway, DNS, etc to make this work with your own application.
+
+### Config Options
+The following options are configurable via `env.json`:
+
+- `"ALLOW_ORIGINS"`: A **comma-separated** list of origins for Cross Origin Resource Sharing. If none are provided, all origins are allowed access (default: `""`)
+    - Example: `"ALLOW_ORIGINS": "https://secure.domain.lol,http://unsecure.domain.wtf"`
+- `"CORS_MAXAGE"`: Value in seconds for the `Access-Control-Max-Age` CORS header (default: `"0"`)
+- `"ALWAYS_RETURN_SCORE"`: Return the `zxcvbn` score even if the `pwnedpasswords` match value is > 0. See [Response](##Response) for details (default: `"false"`)
+
+Note that all `env.json` values **must** be strings, less you anger the Lambda gods.
 
 ### Updating
 Update the Lambda API with any changes you make to the source by running `npm run update`
 
+Update environment variables with any changes to `env.json` by running `npm run update-env`
 
 ### Sorcery
 We're using the cool-as-a-cucumber [claudia.js](https://claudiajs.com/documentation.html) for end-to-end Lambda and API Gateway deployment - please refer to the claudia.js docs to learn more about this serverless voodoo magic.
