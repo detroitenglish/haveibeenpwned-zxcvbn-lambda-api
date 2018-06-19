@@ -8,11 +8,21 @@ import zxcvbn from 'zxcvbn'
 import axios from 'axios'
 import crypto from 'crypto'
 import lru from 'tiny-lru'
+import cors from 'cors'
 
 const app = express()
 
 // Parse body as JSON by default
 app.use(bodyParser.json())
+
+const corsOptions = {
+  origin: process.env.ALLOW_ORIGINS && process.env.ALLOW_ORIGINS.includes(',')
+    ? process.env.ALLOW_ORIGINS.split(',')
+    : '*',
+  maxAge: process.env.CORS_MAXAGE ? +process.env.CORS_MAXAGE : 0,
+}
+
+app.use(cors(corsOptions))
 
 // Use headers from reverse proxies as remote source
 app.enable('trust proxy')
