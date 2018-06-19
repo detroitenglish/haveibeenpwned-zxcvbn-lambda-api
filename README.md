@@ -78,9 +78,9 @@ By default, if `pwned` is greater than 0, then `score` will **always** be 0. You
 ### Good to Know
 The health-check endpoint `/_up` is included by default; this also serves as a handy means to warm-up a Lambda function container before your users start feeding you input.
 
-Lambda's Node 8 runtime supports `async/await` natively, nevertheless deployment first transpile `src/index.js` to JS compatible with Node 6.
+Lambda's Node 8 runtime supports `async/await` natively, nevertheless deploying will transpile `src/index.js` to JS compatible with Node 6.
 
-Finally it may seem weird that deploying will first nuke `package-lock.json` and then reinstall deps - it is a workaround to avoid claudia.js weirdness that I cannot explain but occurs when retrying failed deployments ¯\\\_(ツ)\_/¯
+Finally, it may seem weird that deploying will first nuke `package-lock.json` and then reinstall deps - it is a workaround to avoid claudia.js weirdness that I cannot explain but occurs when retrying failed deployments ¯\\\_(ツ)\_/¯
 
 ## Because Software
 
