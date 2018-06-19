@@ -3,9 +3,9 @@ Deploy your very own serverless API on AWS Lambda to score users' new passwords 
 
 ![API in Action](.github/pwnage.gif?raw=true "API in Action")
 
-_**NOTE**: this is for the BACKEND API only - how to ~~rain judgement down on users~~ handle results on the frontend is your own monster to slay_ :dragon_face:
+_**NOTE**: this is for the BACKEND API only - how to ~~rain judgement down on users~~ handle results is your monster to slay_ :dragon_face:
 
-## Lazy quick-start
+## Quick Start
 1. Create an AWS profile with IAM full access, Lambda full access and API Gateway Administrator privileges.
 2. Add the keys to your ~/.aws/credentials file:
     ```
@@ -13,11 +13,11 @@ _**NOTE**: this is for the BACKEND API only - how to ~~rain judgement down on us
     aws_access_key_id = YOUR_ACCESS_KEY
     aws_secret_access_key = YOUR_ACCESS_SECRET
     ```
-    If you want to use another profile namespace, set it with `npm config set haveibeenpwned-zxcvbn-lambda-api:aws_profile some-aws-profile`  (default is `pwnage`)
+    To use another profile, set it with `npm config set haveibeenpwned-zxcvbn-lambda-api:aws_profile some-aws-profile`  (default: `pwnage`)
 
-1. Rename `example.env.json` to `env.json` and change the values to whatever suits your fancy. Note that all entries must be strings, less you anger the Lambda gods.
-2. Set your AWS region of choice with `npm config set haveibeenpwned-zxcvbn-lambda-api:aws_region some-aws-region` (default is `eu-central-1`)
-3. Set your deployment environment for AWS API Gateway with `npm config set haveibeenpwned-zxcvbn-lambda-api:aws_environment staging` (default is `development`)
+1. Rename `example.env.json` to `env.json` and configure as you see fit. Note that all entries **must** be strings, less we anger the Lambda gods.
+2. Set your AWS region of choice with `npm config set haveibeenpwned-zxcvbn-lambda-api:aws_region some-aws-region` (default: `eu-central-1`)
+3. Set deployment AWS API Gateway environment (i.e. version) with `npm config set haveibeenpwned-zxcvbn-lambda-api:aws_environment staging` (default: `development`)
 4. Install dependencies with `npm install`
 5. Launch 🚀 with `npm run deploy`
 6. Change whatever you need to change in the AWS API Gateway, DNS, etc to make this work with your own application.
@@ -77,6 +77,10 @@ By default, if `pwned` is greater than 0, then `score` will **always** be 0. You
 
 ### Good to Know
 The health-check endpoint `/_up` is included by default; this also serves as a handy means to warm-up a Lambda function container before your users start feeding you input.
+
+Lambda's Node 8 runtime supports `async/await` natively, nevertheless deployment first transpile `src/index.js` to JS compatible with Node 6.
+
+Finally it may seem weird that deploying will first nuke `package-lock.json` and then reinstall deps - it is a workaround to avoid claudia.js weirdness that I cannot explain but occurs when retrying failed deployments ¯\\\_(ツ)\_/¯
 
 ## Because Software
 
