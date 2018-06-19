@@ -30,7 +30,7 @@ The following options are configurable via `env.json`:
 
 - `"CORS_MAXAGE"`: Value in seconds for the `Access-Control-Max-Age` CORS header (default: `"0"`)
 
-- `"ALWAYS_RETURN_SCORE"`: Return the `zxcvbn` score even if the `pwnedpasswords` match value is > 0. See [Response](##Response) for details (default: `"false"`)
+- `"ALWAYS_RETURN_SCORE"`: Return the `zxcvbn` score even if the `pwnedpasswords` match value is > 0. See [The Response](##The-Response) for details (default: `"false"`)
 
 Note that all `env.json` values **must** be strings, less you anger the Lambda gods.
 
