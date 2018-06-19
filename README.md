@@ -1,4 +1,4 @@
-# haveibeenpwned-zxcvbn-lambda-api
+# **Your** 5-Min. Secure Password Scoring and Pwnage Protection API
 Deploy your very own serverless API on AWS Lambda to score users' new passwords with Dropbox's fantastic `zxcvbn` library _AND_ check their password against Troy Hunt's [haveibeenpwned](https://haveibeenpwned.com/) breached passwords database using his `pwnedpasswords` Range Search API.
 
 ![API in Action](.github/pwnage.gif?raw=true "API in Action")
