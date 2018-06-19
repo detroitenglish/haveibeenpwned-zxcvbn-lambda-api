@@ -10,4 +10,4 @@
 
 Blessing borrrowed from SQLite
 
-Thanks to @nolanlawson and @troyhunt as world-class teachers of technical concepts.
+Big thanks to [Nolan Lawson](https://github.com/nolanlawson) and [Troy Hunt](https://github.com/troyhunt) as world-class teachers of technical concepts.
