@@ -1,9 +1,15 @@
 # **Your** 5-Min. Secure Password Scoring and Pwnage Protection API
-Deploy your very own serverless API on AWS Lambda to score users' new passwords with Dropbox's fantastic `zxcvbn` library _AND_ check their password against Troy Hunt's [haveibeenpwned](https://haveibeenpwned.com/) breached passwords database using his `pwnedpasswords` Range Search API.
+Deploy your very own serverless API on AWS Lambda to score users' new passwords with Dropbox's fantastic `zxcvbn` library and anonymously (range) search for matches in Troy Hunt's [haveibeenpwned](https://haveibeenpwned.com/) `pwnedpasswords` database.
 
 ![API in Action](.github/pwnage.gif?raw=true "API in Action")
 
-_**NOTE**: this is for the BACKEND API only - how to ~~rain judgement down on users~~ handle results is your monster to slay_ :dragon_face:
+&nbsp;&nbsp;&nbsp;&nbsp;*Example: handling results with [VuetifyJS](https://github.com/vuetifyjs/vuetify)*
+<br>
+<br>
+## Motivation
+<a href="https://twitter.com/DetroitEnglish/status/1008276231199055874" target="_blank">People seemed to think this concept was neat</a>. AWS Lambda was the ~~best~~ only solution I could think of that's easy to deploy, programming language agnostic and, most importantly, **impossible to implement without https**.
+
+---
 
 ## Quick Start
 1. Create an AWS profile with IAM full access, Lambda full access and API Gateway Administrator privileges.
@@ -22,7 +28,7 @@ _**NOTE**: this is for the BACKEND API only - how to ~~rain judgement down on us
 5. Launch 🚀 with `npm run deploy`
 6. Change whatever you need to change in the AWS API Gateway, DNS, etc to make this work with your own application.
 
-### Config Options
+### Configuration
 The following options are configurable via `env.json`:
 
 - `"ALLOW_ORIGINS"`: A **comma-separated** whitelist of origins for Cross Origin Resource Sharing. If none are provided, all origins are allowed (default: `""`)
@@ -42,7 +48,7 @@ Update environment variables à la changes to `env.json` by running `npm run upd
 ### Sorcery
 Deployment's automated using the cool-as-a-cucumber [claudia.js](https://claudiajs.com/documentation.html) for end-to-end Lambda and API Gateway configuration - please refer to the claudia.js docs to learn more about this serverless voodoo magic.
 
-## How to Use
+## REST API
 
 Following successful deployment or update, `claudia.js` prints the AWS config for your freshly deployed Lambda function, including an https url for instant and secure access to your function:
 
@@ -56,15 +62,18 @@ POST user password input as JSON to:
     https://{{GENERATED_ID}}.execute-api.{{AWS_REGION}}.amazonaws.com/production/{{ROUTE_PREFIX}}/{{SCORING_ENDPOINT}}
 ```
 
-### The Request
+### Request
+
 POST user password input as JSON with field `password` like so:
 ```
 {
   "password": "monkey123"
 }
 ```
-### The Response
-The API will respond with `ok` indicating successful scoring and range search, a strength estimation `score` of 0 through 4 per `zxcvbn`, and `pwned` matches, indicating the number times the input appears in the `haveibeenpwned` database.
+
+### Response
+
+The API will reply with an appropriate status code and return JSON with `ok` indicating successful scoring and range search, a strength estimation `score` of 0 through 4 per `zxcvbn`, and `pwned` matches, indicating the number times the input appears in the `haveibeenpwned` database.
 
 ```
 {
@@ -74,6 +83,17 @@ The API will respond with `ok` indicating successful scoring and range search, a
 }
 ```
 By default, if `pwned` is greater than 0, then `score` will **always** be 0. You can override this behavior by settings `"ALWAYS_RETURN_SCORE"` to `"true"` in `env.json`
+
+#### Errors
+
+Failure will return JSON to inform you that something's not `ok` and a `message` as to why.
+
+```
+{
+    "ok": false,
+    "message": "Something went kaput! :( "
+}
+```
 
 ### Good to Know
 The health-check endpoint `/_up` is included by default; this also serves as a handy means to warm-up a Lambda function container before your users start feeding you input.
@@ -86,8 +106,6 @@ Finally, it may seem weird that deploying will first nuke `package-lock.json` an
 
 ### Disclaimer
 I am not affiliated with Amazon, Troy Hunt, Dropbox, haveibeenpwned, good software development in general, or any combination thereof.
-
-[People just seemed to think this was neat](https://twitter.com/DetroitEnglish/status/1008276231199055874), and this was the easiest solution I could come up with to share it.
 
 Handling user passwords is no laughing matter, so handle them with care and respect.
 
