@@ -71,10 +71,9 @@ router.post(endpoint, async (req, res) => {
   // nope, not in cache
   res.set('x-cached-result', 0)
 
-  // so run both tasks in parallel
-  let [strength, pwned] = await Promise.all([
+  // evaluate password locally
+  let strength = await Promise.all([
     zxcvbn(password),
-    pwnedPassword(password),
   ])
     .catch(err => {
       // something went kaputt, log it
@@ -85,6 +84,23 @@ router.post(endpoint, async (req, res) => {
       // you get nothing - good day, sir!
       return Array(2)
     })
+
+  let pwned = 0
+  // expose password hash prefix to online service only, if local check guesses the password to be reasonably secure
+  if (strength.hasOwnProperty('score') && strength.score == 4) {
+    pwned = await Promise.all([
+      pwnedPassword(password),
+    ])
+      .catch(err => {
+        // something went kaputt, log it
+        console.error(err)
+
+        message = err.message || 'Unknown error'
+
+        // you get nothing - good day, sir!
+        return Array(2)
+      })
+  }
 
   // validate results
   ok = strength.hasOwnProperty('score') && Number.isSafeInteger(pwned)
