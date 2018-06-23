@@ -2,7 +2,7 @@
   "name": "haveibeenpwned-zxcvbn-lambda-api",
   "description": "Score users' new passwords with zxcvbn, check them against the haveibeenpwned database, and rain judgement on users accordingly (no server required)",
   "author": "Dave Willenberg <dave@detroit-english.de> (https://github.com/detroitenglish)",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "main": "lambda.js",
   "license": "MIT",
   "repository": {
