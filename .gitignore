@@ -38,8 +38,8 @@ jspm_packages
 .vagrant
 .data
 .cache
-dev.json
-prod.json
+# Environment variables
+dev.env.json
 env.json
 # Ignore lockfiles because claudia.js is weird about lock files when shit fails
 yarn.lock

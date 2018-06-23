@@ -5,10 +5,22 @@ import path from 'path'
 import bodyParser from 'body-parser'
 import helmet from 'helmet'
 import zxcvbn from 'zxcvbn'
+import fs from 'fs'
 import axios from 'axios'
 import crypto from 'crypto'
 import lru from 'tiny-lru'
 import cors from 'cors'
+
+if (process.env.DEV_SERVER) {
+  // Set environment vars from dev.env.json for a dev server
+  const environment = JSON.parse(fs.readFileSync(__dirname + '/../dev.env.json'))
+  for (let [key, value] of Object.entries(environment)) {
+    process.env[key] = value
+  }
+} else {
+  // Set env to production in Lambda
+  process.env.NODE_ENV = 'production'
+}
 
 const app = express()
 
@@ -102,8 +114,21 @@ router.post(endpoint, async (req, res) => {
 
 app.use(path.normalize(`/` + routePrefix), router)
 
-// export for use in lambda handler...
-module.exports = app
+if (process.env.DEV_SERVER) {
+  // start a development server if that's what we're up to
+  const port = +process.env.DEV_SERVER_PORT || 3000
+
+  app.listen(port, err => {
+    if (err) {
+      console.error(err)
+      process.exit(1)
+    }
+    console.log(`Development server up on port ${port}`)
+  })
+} else {
+  // export for use in lambda handler...
+  module.exports = app
+}
 
 
 // Util for creating a pwndpasswords range query URL
@@ -127,7 +152,8 @@ async function pwnedPassword(pw) {
   })
     .then(result => result.data)
     .catch(err => {
-      throw new Error(`Unable to check password pwnage`)
+      // Something's goofy - abandon ship!
+      throw err
     })
 
   if (!result.includes(suffix)) {

@@ -21,15 +21,20 @@ Deploy your very own serverless API on AWS Lambda to score users' new passwords 
     ```
     To use another profile, set it with `npm config set haveibeenpwned-zxcvbn-lambda-api:aws_profile some-aws-profile`  (default: `pwnage`)
 
-1. Rename `example.env.json` to `env.json` and configure as you see fit. Note that all entries **must** be strings, less we anger the Lambda gods.
+1. Copy/Rename `example.env.json` to `env.json` and configure as you see fit. Note that all entries **must** be strings, less we anger the Lambda gods.
 2. Set your AWS region of choice with `npm config set haveibeenpwned-zxcvbn-lambda-api:aws_region some-aws-region` (default: `eu-central-1`)
 3. Set deployment AWS API Gateway environment (i.e. version) with `npm config set haveibeenpwned-zxcvbn-lambda-api:aws_environment staging` (default: `development`)
 4. Install dependencies with `npm install`
 5. Launch 🚀 with `npm run deploy`
 6. Change whatever you need to change in the AWS API Gateway, DNS, etc to make this work with your own application.
 
+## Development Server
+You can boot this API as an express development server like so:
+1. Copy/Rename `example.env.json` to `dev.env.json` and configure as you see fit.
+2. Boot the development server with `npm run dev`
+
 ### Configuration
-The following options are configurable via `env.json`:
+The following options are configurable via `env.json` or `dev.env.json`:
 
 - `"ALLOW_ORIGINS"`: A **comma-separated** whitelist of origins for Cross Origin Resource Sharing. If none are provided, all origins are allowed (default: `""`)
     - Example: `"ALLOW_ORIGINS": "https://secure.domain.lol,http://unsecure.domain.wtf"`
@@ -37,6 +42,7 @@ The following options are configurable via `env.json`:
 - `"CORS_MAXAGE"`: Value in seconds for the `Access-Control-Max-Age` CORS header (default: `"0"`)
 
 - `"ALWAYS_RETURN_SCORE"`: Return the `zxcvbn` score even if the `pwnedpasswords` match value is > 0. See [The Response](##The-Response) for details (default: `"false"`)
+- `"DEV_SERVER_PORT"`: Port to use when running as a local server for development (default: `"3000"`)
 
 Note that all `env.json` values **must** be strings, less you anger the Lambda gods.
 

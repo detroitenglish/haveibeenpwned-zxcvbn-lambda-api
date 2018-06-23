@@ -22,7 +22,9 @@
     "upgrade:aws": "claudia update --profile $npm_package_config_aws_profile --handler lambda.handler --deploy-proxy-api --region $npm_package_config_aws_region --version $npm_package_config_aws_environment --set-env-from-json env.json",
     "deploy": "npm-run-all -s clean reinstall transpile generate deploy:aws",
     "update": "npm-run-all -s clean reinstall transpile generate upgrade:aws",
-    "update-env": "claudia set-version --profile $npm_package_config_aws_profile --version $npm_package_config_aws_environment --set-env-from-json env.json"
+    "update-env": "claudia set-version --profile $npm_package_config_aws_profile --version $npm_package_config_aws_environment --set-env-from-json env.json",
+    "boot": "node app/index.js",
+    "dev": "cross-env DEV_SERVER=1 npm-run-all -s clean reinstall transpile boot"
   },
   "config": {
     "aws_region": "eu-central-1",
