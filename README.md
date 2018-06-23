@@ -28,7 +28,7 @@ Deploy your very own serverless API on AWS Lambda to score users' new passwords 
 5. Launch 🚀 with `npm run deploy`
 6. Change whatever you need to change in the AWS API Gateway, DNS, etc to make this work with your own application.
 
-## Development Server
+### Development Server
 You can boot this API as an express development server like so:
 1. Copy/Rename `example.env.json` to `dev.env.json` and configure as you see fit.
 2. Boot the development server with `npm run dev`
