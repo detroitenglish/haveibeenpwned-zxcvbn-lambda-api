@@ -24,7 +24,8 @@
     "update": "npm-run-all -s clean reinstall transpile generate upgrade:aws",
     "update-env": "claudia set-version --profile $npm_package_config_aws_profile --version $npm_package_config_aws_environment --set-env-from-json env.json",
     "boot": "node app/index.js",
-    "dev": "cross-env DEV_SERVER=1 npm-run-all -s clean reinstall transpile boot"
+    "nuke": "cross-env del-cli ./app/*",
+    "dev": "cross-env DEV_SERVER=1 npm-run-all -s nuke transpile boot"
   },
   "config": {
     "aws_region": "eu-central-1",
@@ -40,10 +41,16 @@
     "@babel/core": "^7.0.0-beta.49",
     "@babel/preset-env": "^7.0.0-beta.49",
     "aws-sdk": "^2.233.1",
+    "babel-eslint": "^8.2.5",
     "claudia": "^4.0.0",
     "cross-env": "^5.1.4",
     "del-cli": "^1.1.0",
-    "npm-run-all": "^4.1.3"
+    "eslint": "^5.0.0",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-plugin-babel": "^5.1.0",
+    "eslint-plugin-prettier": "^2.6.1",
+    "npm-run-all": "^4.1.3",
+    "prettier": "^1.13.5"
   },
   "dependencies": {
     "@babel/polyfill": "^7.0.0-beta.49",
@@ -53,6 +60,7 @@
     "cors": "^2.8.4",
     "express": "^4.15.4",
     "helmet": "^3.8.1",
+    "shortid": "^2.2.8",
     "tiny-lru": "^1.6.1",
     "zxcvbn": "^4.4.2"
   },
