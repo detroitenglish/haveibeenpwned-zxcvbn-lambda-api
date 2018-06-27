@@ -9,6 +9,7 @@ import fs from 'fs'
 import helmet from 'helmet'
 import lru from 'tiny-lru'
 import path from 'path'
+import random from 'lodash.random'
 import shortid from 'shortid'
 import zxcvbn from 'zxcvbn'
 
@@ -32,6 +33,11 @@ if (process.env.DEV_SERVER) {
 // Logs requests in development
 function logg(stuff) {
   return prod ? void 0 : console.info(stuff)
+}
+
+// Used to simulate wonky network conditions in dev
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
 }
 
 // Main express instance
@@ -86,8 +92,11 @@ router.post(endpoint, async (req, res) => {
   let cancel = false
 
   const id = prod ? void 0 : shortid()
-
+  const waitTime = prod ? 0 : random(300, 600)
+  const waitForIt = prod ? () => {} : () => sleep(waitTime)
   const { password } = req.body
+
+  if (!prod) res.set('x-simulated-wait', waitTime + ' ms')
 
   // AbortController for cancelling request
   const CancelToken = axios.CancelToken
@@ -120,6 +129,7 @@ router.post(endpoint, async (req, res) => {
   if (cachedResult) {
     // hit! send cached result, entry ttl has been auto-renewed
     res.set('x-cached-result', 1)
+    await waitForIt()
     return cancel ? null : res.status(200).json(cachedResult)
   }
 
@@ -129,17 +139,19 @@ router.post(endpoint, async (req, res) => {
   // execute scoring and range search in parallel
   let [strength, pwned] = cancel
     ? [null, null]
-    : await Promise.all([zxcvbn(password), pwnedPassword(password)]).catch(
-        err => {
-          // something went kaputt :( log it
-          console.error(err)
+    : await Promise.all([
+        zxcvbn(password),
+        pwnedPassword(password),
+        waitForIt(),
+      ]).catch(err => {
+        // something went kaputt :( log it
+        console.error(err)
 
-          message = err.message || 'Unknown error'
+        message = err.message || 'Unknown error'
 
-          // you get nothing! good day, sir!
-          return Array(2)
-        }
-      )
+        // you get nothing! good day, sir!
+        return Array(2)
+      })
 
   // validate the results
   ok = strength.hasOwnProperty('score') && Number.isSafeInteger(pwned)
