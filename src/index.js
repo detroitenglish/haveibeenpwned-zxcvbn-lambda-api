@@ -47,6 +47,7 @@ const corsOptions = {
       ? process.env.ALLOW_ORIGINS.split(',')
       : '*',
   maxAge: process.env.CORS_MAXAGE ? +process.env.CORS_MAXAGE : 0,
+  methods: ['GET', 'POST'],
 }
 
 app.use(cors(corsOptions))
