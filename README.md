@@ -41,7 +41,7 @@ The following options are configurable via `env.json` or `dev.env.json`:
 
 - `"CORS_MAXAGE"`: Value in seconds for the `Access-Control-Max-Age` CORS header (default: `"0"`)
 
-- `"ALWAYS_RETURN_SCORE"`: Return the `zxcvbn` score even if the `pwnedpasswords` match value is > 0. See [The Response](##The-Response) for details (default: `"false"`)
+- `"ALWAYS_RETURN_SCORE"`: Return the `zxcvbn` score even if the `pwnedpasswords` match value is > 0. See [Response](##Response) for details (default: `"false"`)
 - `"DEV_SERVER_PORT"`: Port to use when running as a local server for development (default: `"3000"`)
 
 Note that all `env.json` values **must** be strings, less you anger the Lambda gods.
@@ -60,20 +60,28 @@ Following successful deployment or update, `claudia.js` prints the AWS config fo
 
 GET the healthcheck/container-warmup endpoint:
 ```
-    https://{{GENERATED_ID}}.execute-api.{{AWS_REGION}}.amazonaws.com/production/{{ROUTE_PREFIX}}/_up
+https://{{GENERATED_ID}}.execute-api.{{AWS_REGION}}.amazonaws.com/{{AWS_ENVIRONMENT}}/{{ROUTE_PREFIX}}/_up
 ```
 
 POST user password input as JSON to:
 ```
-    https://{{GENERATED_ID}}.execute-api.{{AWS_REGION}}.amazonaws.com/production/{{ROUTE_PREFIX}}/{{SCORING_ENDPOINT}}
+https://{{GENERATED_ID}}.execute-api.{{AWS_REGION}}.amazonaws.com/{{AWS_ENVIRONMENT}}/{{ROUTE_PREFIX}}/{{SCORING_ENDPOINT}}
 ```
 
 ### Request
 
 POST user password input as JSON with field `password` like so:
-```
+
+```javascript
+// pwned password
 {
   "password": "monkey123"
+}
+```
+```javascript
+// stronger password
+{
+  "password": "wonderful waffles"
 }
 ```
 
@@ -81,11 +89,20 @@ POST user password input as JSON with field `password` like so:
 
 The API will reply with an appropriate status code and return JSON with `ok` indicating successful scoring and range search, a strength estimation `score` of 0 through 4 per `zxcvbn`, and `pwned` matches, indicating the number times the input appears in the `haveibeenpwned` database.
 
-```
+```javascript
+// pwned password
 {
     "ok": true,
     "score": 0,
     "pwned": 56491
+}
+```
+```javascript
+// stronger password
+{
+    "ok": true,
+    "score": 3,
+    "pwned": 0
 }
 ```
 By default, if `pwned` is greater than 0, then `score` will **always** be 0. You can override this behavior by settings `"ALWAYS_RETURN_SCORE"` to `"true"` in `env.json`
@@ -94,10 +111,10 @@ By default, if `pwned` is greater than 0, then `score` will **always** be 0. You
 
 Failure will return JSON to inform you that something's not `ok` and a `message` as to why.
 
-```
+```json
 {
     "ok": false,
-    "message": "Something went kaput! :( "
+    "message": "Something went kaput! 💩"
 }
 ```
 
