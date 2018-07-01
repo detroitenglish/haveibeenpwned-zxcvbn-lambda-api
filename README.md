@@ -21,12 +21,11 @@ Deploy your very own serverless API on AWS Lambda to score users' new passwords 
     ```
     To use another profile, set it with `npm config set haveibeenpwned-zxcvbn-lambda-api:aws_profile some-aws-profile`  (default: `pwnage`)
 
-1. Copy/Rename `example.env.json` to `env.json` and configure as you see fit. Note that all entries **must** be strings, less we anger the Lambda gods.
-2. Set your AWS region of choice with `npm config set haveibeenpwned-zxcvbn-lambda-api:aws_region some-aws-region` (default: `eu-central-1`)
-3. Set deployment AWS API Gateway environment (i.e. version) with `npm config set haveibeenpwned-zxcvbn-lambda-api:aws_environment staging` (default: `development`)
-4. Install dependencies with `npm install`
-5. Launch 🚀 with `npm run deploy`
-6. Change whatever you need to change in the AWS API Gateway, DNS, etc to make this work with your own application.
+3. Copy/Rename `example.env.json` to `env.json` and edit as you see fit. Note that all entries **must** be strings, less we anger the Lambda gods.
+    - (Optional) Define your AWS region of choice with `npm config set haveibeenpwned-zxcvbn-lambda-api:aws_region some-aws-region` (default: `eu-central-1`)
+    - (Optional) Define your API Gateway environment (aka version) with `npm config set haveibeenpwned-zxcvbn-lambda-api:aws_environment some-version` (default: `development`)
+4. Launch 🚀 with `npm run deploy`
+
 
 ### Development Server
 You can boot this API as an express development server like so:
