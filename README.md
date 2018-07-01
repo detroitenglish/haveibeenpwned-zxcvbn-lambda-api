@@ -1,5 +1,5 @@
 # **Your** 5-Min. Secure Password Scoring and Pwnage Protection API
-Deploy your very own serverless API on AWS Lambda to score users' new passwords with Dropbox's fantastic `zxcvbn` library and anonymously (range) search for matches in Troy Hunt's [haveibeenpwned](https://haveibeenpwned.com/) `pwnedpasswords` database.
+Deploy a private, secure and serverless RESTful endpoint for sanely scoring users' new passwords using Dropbox's `zxcvbn` library while (k-)anonymously querying Troy Hunt's [`haveibeenpwned`](https://haveibeenpwned.com/) collection of +5.1 *billion* breached accounts.
 
 ![API in Action](.github/pwnage.gif?raw=true "API in Action")
 
@@ -7,7 +7,7 @@ Deploy your very own serverless API on AWS Lambda to score users' new passwords 
 <br>
 <br>
 ## Motivation
-<a href="https://twitter.com/DetroitEnglish/status/1008276231199055874" target="_blank">People seemed to think this concept was neat</a>. AWS Lambda was the ~~best~~ only solution I could think of that's easy to deploy, programming language agnostic and, most importantly, **impossible to implement without https**.
+<a href="https://twitter.com/DetroitEnglish/status/1008276231199055874" target="_blank">People seemed to think this concept was neat</a>. An AWS Lambda REST API was the ~~best~~ only solution I could think of that's easy to deploy, language/framework agnostic and, most importantly, **https by default** 🔒
 
 ---
 
@@ -40,7 +40,7 @@ The following options are configurable via `env.json` or `dev.env.json`:
 
 - `"CORS_MAXAGE"`: Value in seconds for the `Access-Control-Max-Age` CORS header (default: `"0"`)
 
-- `"ALWAYS_RETURN_SCORE"`: Return the `zxcvbn` score even if the `pwnedpasswords` match value is > 0. See [Response](##Response) for details (default: `"false"`)
+- `"ALWAYS_RETURN_SCORE"`: Return the `zxcvbn` score even if the `pwnedpasswords` match value is > 0. See [Response](#Response) for details (default: `"false"`)
 - `"DEV_SERVER_PORT"`: Port to use when running as a local server for development (default: `"3000"`)
 
 Note that all `env.json` values **must** be strings, less you anger the Lambda gods.
@@ -50,21 +50,27 @@ Update the Lambda API with any changes you make to the source by running `npm ru
 
 Update environment variables à la changes to `env.json` by running `npm run update-env`.
 
-### Sorcery
-Deployment's automated using the cool-as-a-cucumber [claudia.js](https://claudiajs.com/documentation.html) for end-to-end Lambda and API Gateway configuration - please refer to the claudia.js docs to learn more about this serverless voodoo magic.
+### Sorcery 🧙‍
+Lambda function and API Gateway configuration are fully automated using the cool-as-a-cucumber [claudia.js](https://claudiajs.com/documentation.html) - refer to the claudia.js docs to learn more about serverless voodoo magic.
 
 ## REST API
 
-Following successful deployment or update, `claudia.js` prints the AWS config for your freshly deployed Lambda function, including an https url for instant and secure access to your function:
+Following a successful deployment or update, `claudia.js` prints a configuration object for your freshly deployed Lambda function, which includes a secure url for immediate access to your function:
 
-GET the healthcheck/container-warmup endpoint:
-```
-https://{{GENERATED_ID}}.execute-api.{{AWS_REGION}}.amazonaws.com/{{AWS_ENVIRONMENT}}/{{ROUTE_PREFIX}}/_up
+GET the warmup endpoint to verify access:
+```bash
+curl \
+  -X GET \
+  "https://$FUNCTION_ID.execute-api.$REGION.amazonaws.com/$ENVIRONMENT/$PREFIX/_up"
 ```
 
 POST user password input as JSON to:
-```
-https://{{GENERATED_ID}}.execute-api.{{AWS_REGION}}.amazonaws.com/{{AWS_ENVIRONMENT}}/{{ROUTE_PREFIX}}/{{SCORING_ENDPOINT}}
+```bash
+curl \
+  -X POST \
+  "https://$FUNCTION_ID.execute-api.$REGION.amazonaws.com/$ENVIRONMENT/$PREFIX/_score" \
+  -H 'content-type: application/json' \
+  -d '{ "password": "🍌📞bananaphone📞🍌" }'
 ```
 
 ### Request
@@ -86,7 +92,7 @@ POST user password input as JSON with field `password` like so:
 
 ### Response
 
-The API will reply with an appropriate status code and return JSON with `ok` indicating successful scoring and range search, a strength estimation `score` of 0 through 4 per `zxcvbn`, and `pwned` matches, indicating the number times the input appears in the `haveibeenpwned` database.
+The API will reply with an appropriate status code and a JSON body, with `ok` indicating successful scoring and range search, a strength estimation `score` of 0 through 4 per `zxcvbn`, and `pwned` matches, indicating the number times the input appears in the `haveibeenpwned` database.
 
 ```javascript
 // pwned password
@@ -113,7 +119,7 @@ Failure will return JSON to inform you that something's not `ok` and a `message`
 ```json
 {
     "ok": false,
-    "message": "Something went kaput! 💩"
+    "message": "It went kaput 💩"
 }
 ```
 
@@ -122,7 +128,7 @@ The health-check endpoint `/_up` is included by default; this also serves as a h
 
 Lambda's Node 8 runtime supports `async/await` natively, nevertheless deploying will transpile `src/index.js` to JS compatible with Node 6.
 
-Finally, it may seem weird that deploying will first nuke `package-lock.json` and then reinstall deps - it is a workaround to avoid claudia.js weirdness that I cannot explain but occurs when retrying failed deployments ¯\\\_(ツ)\_/¯
+Finally, it may seem strange that deploying will first nuke `package-lock.json`, and then reinstall dependencies - it is a workaround for `claudia.js` weirdness that I cannot explain but occurs when retrying failed deployments ¯\\\_(ツ)\_/¯
 
 ## Because Software
 
@@ -133,7 +139,7 @@ Handling user passwords is no laughing matter, so handle them with care and resp
 
 Just like your own users, assume that I have no idea what I'm doing. This part is important, because I have no idea what I'm doing.
 
-**REVIEW THE SOURCE**, and use at your own risk!
+**REVIEW THE SOURCE**, and use at your own risk 🙈
 
 ### License
 MIT
