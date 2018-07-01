@@ -92,9 +92,14 @@ POST user password input as JSON with field `password` like so:
 }
 ```
 
+#### Be the best, cancel requests!
+The scoring function will gracefully terminate when an aborted request is detected, though you'll still incur a Gateway API call and a Lamdba function call for the respective request and invocation.
+
+But [Troy Hunt and Cloudflare offer us the `pwnedpasswords` API for free](https://haveibeenpwned.com/Donate) - and that's pretty cool 😎 So please help keep overhead low by either cancelling open requests on new input, or governing requests on the frontend with something like [lodash.debounce](https://www.npmjs.com/package/lodash.debounce).
+
 ### Response
 
-The API will reply with an appropriate status code and a JSON body, with `ok` indicating successful scoring and range search, a strength estimation `score` of 0 through 4 per `zxcvbn`, and `pwned` matches, indicating the number times the input appears in the `haveibeenpwned` database.
+The Lambda gods will reply with an appropriate status code and a JSON body, with `ok` indicating successful scoring and range search, a strength estimation `score` of 0 through 4 per `zxcvbn`, and `pwned` matches, indicating the number times the input appears in the `haveibeenpwned` database.
 
 ```javascript
 // pwned password
