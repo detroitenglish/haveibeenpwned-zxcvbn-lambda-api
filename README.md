@@ -32,6 +32,8 @@ You can boot this API as an express development server like so:
 1. Copy/Rename `example.env.json` to `dev.env.json` and configure as you see fit.
 2. Boot the development server with `npm run dev`
 
+**Note**: Development mode will add some random artificial latency to each request in a feeble attempt to simulate the wonky network conditions we encounter in the wild.
+
 ### Configuration
 The following options are configurable via `env.json` or `dev.env.json`:
 
