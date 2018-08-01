@@ -154,7 +154,8 @@ router.post(endpoint, async (req, res) => {
       })
 
   // validate the results
-  ok = strength.hasOwnProperty('score') && Number.isSafeInteger(pwned)
+  //   https://www.npmjs.com/package/@babel/plugin-proposal-optional-chaining ❤
+  ok = [strength?.score, pwned].every(val => Number.isSafeInteger(val))
 
   if (ok) {
     score = strength.score
@@ -165,22 +166,23 @@ router.post(endpoint, async (req, res) => {
     cache.set(password, { ok, score, pwned })
   }
 
-  return cancel ? null : res.status(200).json({ ok, score, pwned, message })
+  return cancel
+    ? null
+    : res.status(ok ? 200 : 500).json({ ok, score, pwned, message })
 
   // Range-search input against pwnedpasswords
   async function pwnedPassword(pw) {
     // Util for creating a pwndpasswords range query URL
     const pwnedUrl = p => `https://api.pwnedpasswords.com/range/${p}`
 
-    const hash = Array.from(
-      await crypto
-        .createHash('sha1')
-        .update(pw)
-        .digest('hex')
-        .toUpperCase()
-    )
-    const prefix = hash.splice(0, 5).join('')
-    const suffix = hash.join('')
+    const hash = await crypto
+      .createHash('sha1')
+      .update(pw)
+      .digest('hex')
+      .toUpperCase()
+
+    const prefix = hash.slice(0, 5)
+    const suffix = hash.slice(5)
 
     logg(`${id}: Sending range search request`)
 
@@ -210,7 +212,9 @@ router.post(endpoint, async (req, res) => {
 
     result = result.split('\r\n')
     const match = result.find(r => r.includes(suffix))
-    return +match.split(':')[1]
+    // Range search suffix includes pwned count appended after ':'
+    // Get the pwned count, coerce it to a Number and return it
+    return +match.split(':').pop()
   }
 })
 
