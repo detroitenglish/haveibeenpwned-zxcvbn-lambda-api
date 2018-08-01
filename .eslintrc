@@ -1,29 +1,17 @@
 {
-  "root": true,
-  "parserOptions": {
-    "ecmaVersion": 8,
-    "parser": "babel-eslint",
-    "sourceType": "module"
-  },
   "env": {
-    "browser": false,
     "node": true,
     "es6": true
   },
-  "extends": [
-    "eslint:recommended",
-    "plugin:prettier/recommended",
-  ],
-  "plugins": ["babel"],
+  "parser": "babel-eslint",
+  "plugins": ["prettier", "babel"],
+  "extends": ["eslint:recommended", "plugin:prettier/recommended"],
+  "parserOptions": {
+    "ecmaVersion": 9,
+    "sourceType": "module"
+  },
   "rules": {
-    "no-console": 0,
-    "require-await":"error",
-    "prettier/prettier": [
-      "error",
-      null,
-      {
-        "usePrettierrc": true
-      }
-    ]
+    "prettier/prettier": "error",
+    "no-console": "off"
   }
 }
