@@ -41,11 +41,9 @@ jspm_packages
 # Environment variables
 dev.env.json
 env.json
-# Ignore lockfiles because claudia.js is weird about lock files when shit fails
-yarn.lock
-package-lock.json
 # post-transpilation files and claudia.js app-specific build files
 app/*
 lambda.js
 claudia.json
 tmp
+yarn.lock
