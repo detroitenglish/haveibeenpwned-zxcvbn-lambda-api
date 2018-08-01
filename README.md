@@ -1,4 +1,7 @@
 # **Your** 5-Min. Secure Password Scoring and Pwnage Protection API
+
+(Already drunk the Cloudflare Kool-Aid? [Check out the Cloudflare Worker version here](https://github.com/detroitenglish/pw-pwnage-cfworker))
+
 Deploy a private, secure and serverless RESTful endpoint for sanely scoring users' new passwords using Dropbox's `zxcvbn` library while (k-)anonymously querying Troy Hunt's [`haveibeenpwned`](https://haveibeenpwned.com/) collection of +5.1 *billion* breached accounts.
 
 ![API in Action](.github/pwnage.gif?raw=true "API in Action")
