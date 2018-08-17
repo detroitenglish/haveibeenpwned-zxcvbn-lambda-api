@@ -94,7 +94,7 @@ router.post(endpoint, async (req, res) => {
   const id = prod ? void 0 : shortid()
   const waitTime = prod ? 0 : random(300, 600)
   const waitForIt = prod ? () => {} : () => sleep(waitTime)
-  const { password } = req.body
+  let { password, userInputs } = req.body
 
   if (!prod) res.set('x-simulated-wait', waitTime + ' ms')
 
@@ -112,6 +112,25 @@ router.post(endpoint, async (req, res) => {
     }
   })
 
+  if (
+    userInputs &&
+    !(typeof userInputs === 'object' && userInputs.constructor === Array)
+  ) {
+    //
+    // something's wrong with the input - bail!
+    return cancel
+      ? void 0
+      : res.status(400).json({
+          ok: false,
+          message: `'userInputs' must be an Array`,
+        })
+  }
+
+  // if userInputs is not supplied, lets assign it to an empty Array
+  if (!userInputs) {
+    userInputs = []
+  }
+
   if (!password || typeof password !== 'string' || !password.length) {
     //
     // something's wrong with the input - bail!
@@ -124,7 +143,10 @@ router.post(endpoint, async (req, res) => {
   }
 
   // first, check the cache
-  const cachedResult = cache.get(password)
+  let cacheKey = [...userInputs]
+  cacheKey.push(password)
+  cacheKey = cacheKey.join('-')
+  const cachedResult = cache.get(cacheKey)
 
   if (cachedResult) {
     // hit! send cached result, entry ttl has been auto-renewed
@@ -140,7 +162,7 @@ router.post(endpoint, async (req, res) => {
   let [strength, pwned] = cancel
     ? [null, null]
     : await Promise.all([
-        zxcvbn(password),
+        zxcvbn(password, userInputs),
         pwnedPassword(password),
         waitForIt(),
       ]).catch(err => {
@@ -163,7 +185,7 @@ router.post(endpoint, async (req, res) => {
     if (pwned && process.env.ALWAYS_RETURN_SCORE !== 'true') score = 0
 
     // cache our funky-fresh results
-    cache.set(password, { ok, score, pwned })
+    cache.set(cacheKey, { ok, score, pwned })
   }
 
   return cancel
