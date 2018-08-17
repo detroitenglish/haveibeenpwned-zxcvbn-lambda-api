@@ -88,7 +88,7 @@ router.get('/_up', (req, res) => res.status(200).json({ ok: true }))
 
 // Password scoring and haveibeenpwned crosscheck endpoint
 router.post(endpoint, async (req, res) => {
-  let ok, score, message
+  let ok, score, message, metadata
   let cancel = false
 
   const id = prod ? void 0 : shortid()
@@ -123,11 +123,10 @@ router.post(endpoint, async (req, res) => {
         })
   }
 
+  // Validate user input received from the client
   if (
     !Array.isArray(userInputs) ||
-    !userInputs.every(function(i) {
-      return typeof i === 'string'
-    })
+    !userInputs.every(i => typeof i === 'string')
   ) {
     //
     // something's wrong with the input - bail!
@@ -137,12 +136,13 @@ router.post(endpoint, async (req, res) => {
           ok: false,
           message: `'userInputs' must be an Array of Strings`,
         })
+  } else if (process.env.USER_INPUTS.length) {
+    // Add pre-configured user_input from env
+    userInputs.push(...process.env.USER_INPUTS.split(','))
   }
 
   // first, check the cache
-  let cacheKey = [...userInputs]
-  cacheKey.push(password)
-  cacheKey = cacheKey.join('-')
+  const cacheKey = `${userInputs.join('-')}-${password}`
   const cachedResult = cache.get(cacheKey)
 
   if (cachedResult) {
@@ -177,17 +177,20 @@ router.post(endpoint, async (req, res) => {
   ok = [strength?.score, pwned].every(val => Number.isSafeInteger(val))
 
   if (ok) {
+    // include result from zxcvbn strength estimation if configured
+    if (process.env.RETURN_ZXCVBN_RESULT === 'true') metadata = strength
+
     score = strength.score
     // if already pwned, set score to zero unless overridden
     if (pwned && process.env.ALWAYS_RETURN_SCORE !== 'true') score = 0
 
     // cache our funky-fresh results
-    cache.set(cacheKey, { ok, score, pwned })
+    cache.set(cacheKey, { ok, score, pwned, metadata })
   }
 
   return cancel
     ? null
-    : res.status(ok ? 200 : 500).json({ ok, score, pwned, message })
+    : res.status(ok ? 200 : 500).json({ ok, score, pwned, message, metadata })
 
   // Range-search input against pwnedpasswords
   async function pwnedPassword(pw) {
