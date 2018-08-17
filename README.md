@@ -78,6 +78,15 @@ curl \
   -d '{ "password": "🍌📞bananaphone📞🍌" }'
 ```
 
+Optionally, include an array of Strings that zxcvbn will treat as an extra dictionary:
+```bash
+curl \
+  -X POST \
+  "https://$FUNCTION_ID.execute-api.$REGION.amazonaws.com/$ENVIRONMENT/$PREFIX/_score" \
+  -H 'content-type: application/json' \
+  -d '{ "password": "🍌📞bananaphone📞🍌", "userInputs": ["🍌📞bananaphone📞🍌"] }'
+```
+
 ### Request
 
 POST user password input as JSON with field `password` like so:
@@ -92,6 +101,13 @@ POST user password input as JSON with field `password` like so:
 // stronger password
 {
   "password": "wonderful waffles"
+}
+```
+```javascript
+// stronger password with supplementary dictionary
+{
+  "password": "wonderful waffles",
+  "userInputs": ["wonderful waffles", "maple", "syrup"]
 }
 ```
 
@@ -120,6 +136,15 @@ The Lambda gods will reply with an appropriate status code and a JSON body, with
     "pwned": 0
 }
 ```
+```javascript
+// stronger password with supplementary dictionary
+{
+    "ok": true,
+    "score": 0,
+    "pwned": 0
+}
+```
+
 By default, if `pwned` is greater than 0, then `score` will **always** be 0. You can override this behavior by settings `"ALWAYS_RETURN_SCORE"` to `"true"` in `env.json`
 
 #### Errors

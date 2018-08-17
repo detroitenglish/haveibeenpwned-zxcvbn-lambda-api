@@ -123,14 +123,19 @@ router.post(endpoint, async (req, res) => {
         })
   }
 
-  if (!Array.isArray(userInputs)) {
+  if (
+    !Array.isArray(userInputs) ||
+    !userInputs.every(function(i) {
+      return typeof i === 'string'
+    })
+  ) {
     //
     // something's wrong with the input - bail!
     return cancel
       ? void 0
       : res.status(400).json({
           ok: false,
-          message: `'userInputs' must be an Array`,
+          message: `'userInputs' must be an Array of Strings`,
         })
   }
 
