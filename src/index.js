@@ -94,7 +94,7 @@ router.post(endpoint, async (req, res) => {
   const id = prod ? void 0 : shortid()
   const waitTime = prod ? 0 : random(300, 600)
   const waitForIt = prod ? () => {} : () => sleep(waitTime)
-  let { password, userInputs } = req.body
+  const { password, userInputs = [] } = req.body
 
   if (!prod) res.set('x-simulated-wait', waitTime + ' ms')
 
@@ -112,25 +112,6 @@ router.post(endpoint, async (req, res) => {
     }
   })
 
-  if (
-    userInputs &&
-    !(typeof userInputs === 'object' && userInputs.constructor === Array)
-  ) {
-    //
-    // something's wrong with the input - bail!
-    return cancel
-      ? void 0
-      : res.status(400).json({
-          ok: false,
-          message: `'userInputs' must be an Array`,
-        })
-  }
-
-  // if userInputs is not supplied, lets assign it to an empty Array
-  if (!userInputs) {
-    userInputs = []
-  }
-
   if (!password || typeof password !== 'string' || !password.length) {
     //
     // something's wrong with the input - bail!
@@ -139,6 +120,17 @@ router.post(endpoint, async (req, res) => {
       : res.status(400).json({
           ok: false,
           message: `'password' must be a string of length > 0`,
+        })
+  }
+
+  if (!Array.isArray(userInputs)) {
+    //
+    // something's wrong with the input - bail!
+    return cancel
+      ? void 0
+      : res.status(400).json({
+          ok: false,
+          message: `'userInputs' must be an Array`,
         })
   }
 
