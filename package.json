@@ -15,7 +15,7 @@
   "homepage": "https://github.com/detroitenglish/haveibeenpwned-zxcvbn-lambda-api",
   "scripts": {
     "lint": "./node_modules/.bin/eslint src",
-    "precommit": "yarn lint",
+    "precommit": "./node_modules/.bin/eslint src",
     "clean": "cross-env del-cli ./app/* package-lock.json lambda.js",
     "reinstall": "npm install",
     "transpile": "babel --presets=@babel/env --out-dir=app src",
