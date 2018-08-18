@@ -48,9 +48,9 @@ The following options are configurable via `env.json` or `dev.env.json`:
 - `"ALWAYS_RETURN_SCORE"`: Return the `zxcvbn` score even if the `pwnedpasswords` match value is > 0. See [Response](#Response) for details (default: `"false"`)
 - `"DEV_SERVER_PORT"`: Port to use when running as a local server for development (default: `"3000"`)
 
-- `USER_INPUTS`: Comma-separated list of words/phrases to be included in the `zxcvbn` strength estimation dictionary. It's a good idea to include e.g. your company and/or application name here (default: `""`)
+- `"USER_INPUTS"`: Comma-separated list of words/phrases to be included in the `zxcvbn` strength estimation dictionary. It's a good idea to include e.g. your company and/or application name here (default: `""`)
 
-- `RETURN_ZXCVBN_RESULT`: Return the full result of the `zxcvbn` strength estimation as a `metadata` response key. Refer to the [zxcvbn documentation](https://github.com/dropbox/zxcvbn#usage) for details on what that includes (default: `"false"`)
+- `"RETURN_ZXCVBN_RESULT"`: Return the full result of the `zxcvbn` strength estimation as a `metadata` response key. Refer to the [zxcvbn documentation](https://github.com/dropbox/zxcvbn#usage) for details on what that includes (default: `"false"`)
 
 Note that all `env.json` values **must** be strings, less you anger the Lambda gods.
 
@@ -123,7 +123,7 @@ POST user password input as JSON with field `password` like so:
 }
 ```
 
-#### Be the best, cancel requests!
+#### Be the best - cancel requests!
 The scoring function will gracefully terminate when an aborted request is detected, though you'll still incur a Gateway API call and a Lamdba function call for the respective request and invocation.
 
 But [Troy Hunt and Cloudflare offer us the `pwnedpasswords` API for free](https://haveibeenpwned.com/Donate) - and that's pretty cool 😎 So please help keep overhead low by either cancelling open requests on new input, or governing requests on the frontend with something like [lodash.debounce](https://www.npmjs.com/package/lodash.debounce).
@@ -167,7 +167,7 @@ The Lambda gods will reply with an appropriate status code and a JSON body, with
 
 By default, if `pwned` is greater than 0, then `score` will **always** be 0. You can override this behavior by settings `"ALWAYS_RETURN_SCORE"` to `"true"` in `env.json`
 
-If `RETURN_ZXCVBN_RESULT` is configured `"true"`, responses will also include a `metadata` key with the complete `zxcvbn` [strength estimation result object](https://github.com/dropbox/zxcvbn#usage).
+If `"RETURN_ZXCVBN_RESULT"` is configured `"true"`, responses will also include a `metadata` key with the complete `zxcvbn` [strength estimation result object](https://github.com/dropbox/zxcvbn#usage).
 
 #### Errors
 
