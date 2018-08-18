@@ -1,8 +1,8 @@
 # **Your** 5-Min. Secure Password Scoring and Pwnage Protection API
 
-(Already drunk the Cloudflare Kool-Aid? [Check out the Cloudflare Worker version here](https://github.com/detroitenglish/pw-pwnage-cfworker))
+(Already drunk the Cloudflare Kool-Aid? [Check out the Cloudflare-Worker version here](https://github.com/detroitenglish/pw-pwnage-cfworker))
 
-Deploy a private, secure and serverless RESTful endpoint for sanely scoring users' new passwords using Dropbox's `zxcvbn` library while (k-)anonymously querying Troy Hunt's [`haveibeenpwned`](https://haveibeenpwned.com/) collection of +5.1 *billion* breached accounts.
+Deploy a private, secure and serverless RESTful endpoint for sanely scoring users' new passwords using Dropbox's [`zxcvbn`](https://github.com/dropbox/zxcvbn) library while (k-)anonymously querying Troy Hunt's [`haveibeenpwned`](https://haveibeenpwned.com/) collection of +5.1 *billion* breached accounts.
 
 ![API in Action](.github/pwnage.gif?raw=true "API in Action")
 
@@ -48,6 +48,10 @@ The following options are configurable via `env.json` or `dev.env.json`:
 - `"ALWAYS_RETURN_SCORE"`: Return the `zxcvbn` score even if the `pwnedpasswords` match value is > 0. See [Response](#Response) for details (default: `"false"`)
 - `"DEV_SERVER_PORT"`: Port to use when running as a local server for development (default: `"3000"`)
 
+- `USER_INPUTS`: Comma-separated list of words/phrases to be included in the `zxcvbn` strength estimation dictionary. It's a good idea to include e.g. your company and/or application name here (default: `""`)
+
+- `RETURN_ZXCVBN_RESULT`: Return the full result of the `zxcvbn` strength estimation as a `metadata` response key. Refer to the [zxcvbn documentation](https://github.com/dropbox/zxcvbn#usage) for details on what that includes (default: `"false"`)
+
 Note that all `env.json` values **must** be strings, less you anger the Lambda gods.
 
 ### Updating
@@ -78,13 +82,13 @@ curl \
   -d '{ "password": "🍌📞bananaphone📞🍌" }'
 ```
 
-Optionally, include an array of Strings that zxcvbn will treat as an extra dictionary:
+Optionally, include an array of words or phrases to include in the zxcvbn dictionary:
 ```bash
 curl \
   -X POST \
   "https://$FUNCTION_ID.execute-api.$REGION.amazonaws.com/$ENVIRONMENT/$PREFIX/_score" \
   -H 'content-type: application/json' \
-  -d '{ "password": "🍌📞bananaphone📞🍌", "userInputs": ["🍌📞bananaphone📞🍌"] }'
+  -d '{ "password": "roflcopters", "userInputs": ["MyCompanyName"] }'
 ```
 
 ### Request
@@ -104,10 +108,18 @@ POST user password input as JSON with field `password` like so:
 }
 ```
 ```javascript
-// stronger password with supplementary dictionary
+// very strong password (technically), with supplementary dictionary
+// NOTE: you'd be wise to test this client-side _before_ sending this request...
 {
-  "password": "wonderful waffles",
-  "userInputs": ["wonderful waffles", "maple", "syrup"]
+  "password": "emailAddress@of-this.user",
+  "userInputs": ["somethingUserSpecific", "emailAddress@of-this.user"]
+}
+```
+```javascript
+// very strong password, with supplementary dictionary
+{
+  "password": "14HFF3vA8qremH9Fe3A9nsXw",
+  "userInputs": ["somethingUserSpecific", "emailAddress@of-this.user"]
 }
 ```
 
@@ -121,7 +133,7 @@ But [Troy Hunt and Cloudflare offer us the `pwnedpasswords` API for free](https:
 The Lambda gods will reply with an appropriate status code and a JSON body, with `ok` indicating successful scoring and range search, a strength estimation `score` of 0 through 4 per `zxcvbn`, and `pwned` matches, indicating the number times the input appears in the `haveibeenpwned` database.
 
 ```javascript
-// pwned password
+// pwned password: 'monkey123'
 {
     "ok": true,
     "score": 0,
@@ -129,7 +141,7 @@ The Lambda gods will reply with an appropriate status code and a JSON body, with
 }
 ```
 ```javascript
-// stronger password
+// stronger password: 'wonderful waffles'
 {
     "ok": true,
     "score": 3,
@@ -137,15 +149,25 @@ The Lambda gods will reply with an appropriate status code and a JSON body, with
 }
 ```
 ```javascript
-// stronger password with supplementary dictionary
+// password: 'emailAddress@of-this.user'; matches supplementary dictionary entry...
 {
     "ok": true,
     "score": 0,
     "pwned": 0
 }
 ```
+```javascript
+// very strong password: '14HFF3vA8qremH9Fe3A9nsXw'
+{
+    "ok": true,
+    "score": 4,
+    "pwned": 0
+}
+```
 
 By default, if `pwned` is greater than 0, then `score` will **always** be 0. You can override this behavior by settings `"ALWAYS_RETURN_SCORE"` to `"true"` in `env.json`
+
+If `RETURN_ZXCVBN_RESULT` is configured `"true"`, responses will also include a `metadata` key with the complete `zxcvbn` [strength estimation result object](https://github.com/dropbox/zxcvbn#usage).
 
 #### Errors
 
