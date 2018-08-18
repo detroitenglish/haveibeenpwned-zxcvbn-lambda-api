@@ -48,10 +48,9 @@ app.use(bodyParser.json())
 
 // Cross-Origin-Resource-Sharing
 const corsOptions = {
-  origin:
-    process.env.ALLOW_ORIGINS && process.env.ALLOW_ORIGINS.includes(',')
-      ? process.env.ALLOW_ORIGINS.split(',')
-      : '*',
+  origin: process.env.ALLOW_ORIGINS.length
+    ? process.env.ALLOW_ORIGINS.split(',')
+    : '*',
   maxAge: process.env.CORS_MAXAGE ? +process.env.CORS_MAXAGE : 0,
   methods: ['GET', 'POST'],
 }
