@@ -1,12 +1,10 @@
 {
   "presets": [
-    ["@babel/env", {
+    ["@babel/preset-env", {
+      "loose": true,
+      "useBuiltIns": "usage",
       "targets": {
-        "browsers": false,
-        "node": "6",
-        "modules": false,
-        "loose": true,
-        "useBuiltIns": "entry"
+        "node": "6"
       }
     }]
   ],

@@ -1,5 +1,4 @@
 ﻿'use strict'
-import '@babel/polyfill'
 import axios from 'axios'
 import bodyParser from 'body-parser'
 import cors from 'cors'
