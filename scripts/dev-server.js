@@ -1,17 +1,11 @@
 const chokidar = require('chokidar')
 const nodemon = require('nodemon')
-const del = require('del')
-const { transformFile } = require('@babel/core')
-const { promisify } = require('util')
-const { writeFileSync: write } = require('fs')
-
-const transpile = promisify(transformFile)
 
 let server
 
 const config = {
   verbose: true,
-  script: `${__dirname}/../app/index.js`,
+  script: `${__dirname}/../src/index.js`,
   watch: false,
   env: {
     DEV_SERVER: '1',
@@ -26,19 +20,16 @@ watcher.on('ready', () => {
   console.info(`Watching source directory...`)
   console.info(`Booting dev server...`)
   server = nodemon(config)
-  watcher.on('change', async path => {
-    await del(config.script)
-    const script = await transpile(path)
-    write(config.script, script.code)
+  watcher.on('change', () => {
     console.info(`Restarting dev server...`)
     nodemon.emit('restart')
   })
 })
 
-process.once('SIGINT', () => shutdown('SIGINT'))
-process.once('SIGTERM', () => shutdown('SIGTERM'))
-process.once('SIGUSR2', () => shutdown('SIGUSR2'))
-process.once('SIGUSR1', () => shutdown('SIGUSR1'))
+process.once('SIGINT', shutdown)
+process.once('SIGTERM', shutdown)
+process.once('SIGUSR2', shutdown)
+process.once('SIGUSR1', shutdown)
 
 function shutdown() {
   console.log(`Shutting down dev server...`)

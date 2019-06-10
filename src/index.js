@@ -1,16 +1,4 @@
 ﻿'use strict'
-import axios from 'axios'
-import bodyParser from 'body-parser'
-import cors from 'cors'
-import crypto from 'crypto'
-import express from 'express'
-import fs from 'fs'
-import helmet from 'helmet'
-import lru from 'tiny-lru'
-import path from 'path'
-import random from 'lodash.random'
-import shortid from 'shortid'
-import zxcvbn from 'zxcvbn'
 
 let prod
 
@@ -18,7 +6,7 @@ if (process.env.DEV_SERVER) {
   prod = false
   // Set environment vars from dev.env.json for a dev server
   const environment = JSON.parse(
-    fs.readFileSync(__dirname + '/../dev.env.json')
+    require('fs').readFileSync(__dirname + '/../dev.env.json')
   )
   for (let [key, value] of Object.entries(environment)) {
     process.env[key] = value
@@ -28,7 +16,17 @@ if (process.env.DEV_SERVER) {
   // Set env to production for use in Lambda
   process.env.NODE_ENV = 'production'
 }
-
+const axios = require('axios')
+const bodyParser = require('body-parser')
+const cors = require('cors')
+const crypto = require('crypto')
+const express = require('express')
+const helmet = require('helmet')
+const lru = require('tiny-lru')
+const path = require('path')
+const random = require('lodash.random')
+const shortid = require('shortid')
+const zxcvbn = require('zxcvbn')
 // Logs requests in development
 function logg(stuff) {
   return prod ? void 0 : console.info(stuff)
@@ -171,8 +169,9 @@ router.post(endpoint, async (req, res) => {
       })
 
   // validate the results
-  //   https://www.npmjs.com/package/@babel/plugin-proposal-optional-chaining ❤
-  ok = [strength?.score, pwned].every(val => Number.isSafeInteger(val))
+  ok = [strength && strength.score, pwned].every(val =>
+    Number.isSafeInteger(val)
+  )
 
   if (ok) {
     // include result from zxcvbn strength estimation if configured
