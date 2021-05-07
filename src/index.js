@@ -1,12 +1,10 @@
-﻿'use strict'
-
-let prod
+﻿let prod
 
 if (process.env.DEV_SERVER) {
   prod = false
   // Set environment vars from dev.env.json for a dev server
   const environment = JSON.parse(
-    require('fs').readFileSync(__dirname + '/../dev.env.json')
+    require(`fs`).readFileSync(`${__dirname}/../dev.env.json`)
   )
   for (let [key, value] of Object.entries(environment)) {
     process.env[key] = value
@@ -14,19 +12,19 @@ if (process.env.DEV_SERVER) {
 } else {
   prod = true
   // Set env to production for use in Lambda
-  process.env.NODE_ENV = 'production'
+  process.env.NODE_ENV = `production`
 }
-const axios = require('axios')
-const bodyParser = require('body-parser')
-const cors = require('cors')
-const crypto = require('crypto')
-const express = require('express')
-const helmet = require('helmet')
-const lru = require('tiny-lru')
-const path = require('path')
-const random = require('lodash.random')
-const shortid = require('shortid')
-const zxcvbn = require('zxcvbn')
+const axios = require(`axios`)
+const bodyParser = require(`body-parser`)
+const cors = require(`cors`)
+const crypto = require(`crypto`)
+const express = require(`express`)
+const helmet = require(`helmet`)
+const lru = require(`tiny-lru`)
+const path = require(`path`)
+const random = require(`lodash.random`)
+const shortid = require(`shortid`)
+const zxcvbn = require(`zxcvbn`)
 // Logs requests in development
 function logg(stuff) {
   return prod ? void 0 : console.info(stuff)
@@ -46,16 +44,16 @@ app.use(bodyParser.json())
 // Cross-Origin-Resource-Sharing
 const corsOptions = {
   origin: process.env.ALLOW_ORIGINS.length
-    ? process.env.ALLOW_ORIGINS.split(',')
-    : '*',
+    ? process.env.ALLOW_ORIGINS.split(`,`)
+    : `*`,
   maxAge: process.env.CORS_MAXAGE ? +process.env.CORS_MAXAGE : 0,
-  methods: ['GET', 'POST'],
+  methods: [`GET`, `POST`],
 }
 
 app.use(cors(corsOptions))
 
 // Use headers from reverse proxies as remote source
-app.enable('trust proxy')
+app.enable(`trust proxy`)
 
 // Basic security headers
 app.use(helmet())
@@ -64,9 +62,7 @@ app.use(helmet())
 const router = express.Router()
 
 // Set the scoring endpoint
-const endpoint = path.normalize(
-  `/` + (process.env.SCORING_ENDPOINT || '/_score')
-)
+const endpoint = path.normalize(`/${process.env.SCORING_ENDPOINT || `/_score`}`)
 
 // Set the API route prefix
 const routePrefix = process.env.ROUTE_PREFIX || `/`
@@ -80,7 +76,7 @@ const cache = lru(1e3, false, 3e5)
  */
 
 // Health check and/or warm-up endpoint for the function container
-router.get('/_up', (req, res) => res.status(200).json({ ok: true }))
+router.get(`/_up`, (req, res) => res.status(200).json({ ok: true }))
 
 // Password scoring and haveibeenpwned crosscheck endpoint
 router.post(endpoint, async (req, res) => {
@@ -92,13 +88,13 @@ router.post(endpoint, async (req, res) => {
   const waitForIt = prod ? () => {} : () => sleep(waitTime)
   const { password, userInputs = [] } = req.body
 
-  if (!prod) res.set('x-simulated-wait', waitTime + ' ms')
+  if (!prod) res.set(`x-simulated-wait`, `${waitTime} ms`)
 
   // AbortController for cancelling request
   const CancelToken = axios.CancelToken
   const source = CancelToken.source()
 
-  req.on('close', () => {
+  req.on(`close`, () => {
     cancel = true
     logg(`${id}: ABORTED - abandon ship!`)
     try {
@@ -108,7 +104,7 @@ router.post(endpoint, async (req, res) => {
     }
   })
 
-  if (!password || typeof password !== 'string' || !password.length) {
+  if (!password || typeof password !== `string` || !password.length) {
     //
     // something's wrong with the input - bail!
     return cancel
@@ -122,7 +118,7 @@ router.post(endpoint, async (req, res) => {
   // Validate user input received from the client
   if (
     !Array.isArray(userInputs) ||
-    !userInputs.every(i => typeof i === 'string')
+    !userInputs.every(i => typeof i === `string`)
   ) {
     //
     // something's wrong with the input - bail!
@@ -134,22 +130,22 @@ router.post(endpoint, async (req, res) => {
         })
   } else if (process.env.USER_INPUTS.length) {
     // Add pre-configured user_input from env
-    userInputs.push(...process.env.USER_INPUTS.split(','))
+    userInputs.push(...process.env.USER_INPUTS.split(`,`))
   }
 
   // first, check the cache
-  const cacheKey = `${userInputs.join('-')}-${password}`
+  const cacheKey = `${userInputs.join(`-`)}-${password}`
   const cachedResult = cache.get(cacheKey)
 
   if (cachedResult) {
     // hit! send cached result, entry ttl has been auto-renewed
-    res.set('x-cached-result', 1)
+    res.set(`x-cached-result`, 1)
     await waitForIt()
     return cancel ? null : res.status(200).json(cachedResult)
   }
 
   // nope, not in cache
-  res.set('x-cached-result', 0)
+  res.set(`x-cached-result`, 0)
 
   // execute scoring and range search in parallel
   let [strength, pwned] = cancel
@@ -162,7 +158,7 @@ router.post(endpoint, async (req, res) => {
         // something went kaputt :( log it
         console.error(err)
 
-        message = err.message || 'Unknown error'
+        message = err.message || `Unknown error`
 
         // you get nothing! good day, sir!
         return Array(2)
@@ -175,11 +171,11 @@ router.post(endpoint, async (req, res) => {
 
   if (ok) {
     // include result from zxcvbn strength estimation if configured
-    if (process.env.RETURN_ZXCVBN_RESULT === 'true') metadata = strength
+    if (process.env.RETURN_ZXCVBN_RESULT === `true`) metadata = strength
 
     score = strength.score
     // if already pwned, set score to zero unless overridden
-    if (pwned && process.env.ALWAYS_RETURN_SCORE !== 'true') score = 0
+    if (pwned && process.env.ALWAYS_RETURN_SCORE !== `true`) score = 0
 
     // cache our funky-fresh results
     cache.set(cacheKey, { ok, score, pwned, metadata })
@@ -195,9 +191,9 @@ router.post(endpoint, async (req, res) => {
     const pwnedUrl = p => `https://api.pwnedpasswords.com/range/${p}`
 
     const hash = await crypto
-      .createHash('sha1')
+      .createHash(`sha1`)
       .update(pw)
-      .digest('hex')
+      .digest(`hex`)
       .toUpperCase()
 
     const prefix = hash.slice(0, 5)
@@ -209,7 +205,7 @@ router.post(endpoint, async (req, res) => {
       ? null
       : await axios({
           url: pwnedUrl(prefix),
-          method: 'GET',
+          method: `GET`,
           cancelToken: source.token,
         })
           .then(result => result.data)
@@ -229,11 +225,11 @@ router.post(endpoint, async (req, res) => {
       return 0
     }
 
-    result = result.split('\r\n')
+    result = result.split(`\r\n`)
     const match = result.find(r => r.includes(suffix))
     // Range search suffix includes pwned count appended after ':'
     // Get the pwned count, coerce it to a Number and return it
-    return +match.split(':').pop()
+    return +match.split(`:`).pop()
   }
 })
 
@@ -242,7 +238,7 @@ router.post(endpoint, async (req, res) => {
  */
 
 // Prefix routes with our selected route...prefix
-app.use(path.normalize(`/` + routePrefix), router)
+app.use(path.normalize(`/${routePrefix}`), router)
 
 if (process.env.DEV_SERVER) {
   // start a development server if that's what we're up to
