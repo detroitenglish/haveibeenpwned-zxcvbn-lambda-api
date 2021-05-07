@@ -15,15 +15,15 @@
   "homepage": "https://github.com/detroitenglish/haveibeenpwned-zxcvbn-lambda-api",
   "scripts": {
     "clean": "del package-lock.json lambda.js",
+    "deploy:aws": "npx claudia create --profile $npm_package_config_aws_profile --handler lambda.handler --deploy-proxy-api --region $npm_package_config_aws_region --version $npm_package_config_aws_environment --set-env-from-json env.json",
     "deploy": "npm-run-all -s clean reinstall generate deploy:aws",
-    "deploy:aws": "claudia create --profile $npm_package_config_aws_profile --handler lambda.handler --deploy-proxy-api --region $npm_package_config_aws_region --version $npm_package_config_aws_environment --set-env-from-json env.json",
     "dev": "node scripts/dev-server",
-    "generate": "claudia generate-serverless-express-proxy --express-module ./src/index",
+    "generate": "npx claudia generate-serverless-express-proxy --express-module ./src/index",
     "lint": "eslint src scripts --fix",
     "reinstall": "npm install",
+    "update-env": "npx claudia set-version --profile $npm_package_config_aws_profile --version $npm_package_config_aws_environment --set-env-from-json env.json",
     "update": "npm-run-all -s clean reinstall generate upgrade:aws",
-    "update-env": "claudia set-version --profile $npm_package_config_aws_profile --version $npm_package_config_aws_environment --set-env-from-json env.json",
-    "upgrade:aws": "claudia update --profile $npm_package_config_aws_profile --handler lambda.handler --deploy-proxy-api --region $npm_package_config_aws_region --version $npm_package_config_aws_environment --set-env-from-json env.json"
+    "upgrade:aws": "npx claudia update --profile $npm_package_config_aws_profile --handler lambda.handler --deploy-proxy-api --region $npm_package_config_aws_region --version $npm_package_config_aws_environment --set-env-from-json env.json"
   },
   "config": {
     "aws_region": "eu-central-1",
