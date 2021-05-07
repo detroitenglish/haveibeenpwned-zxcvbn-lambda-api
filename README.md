@@ -2,7 +2,7 @@
 
 _Prefer Cloudflare Workers? [There's a version for you here](https://github.com/detroitenglish/pw-pwnage-cfworker)_
 
-Deploy a private, secure and serverless RESTful endpoint for sanely scoring users' new passwords using Dropbox's [`zxcvbn`](https://github.com/dropbox/zxcvbn) library while (k-)anonymously querying Troy Hunt's [`haveibeenpwned`](https://haveibeenpwned.com/) collection of +5.1 _billion_\* breached accounts.
+Deploy a private, secure and serverless RESTful endpoint for sanely scoring users' new passwords using Dropbox's [`zxcvbn`](https://github.com/dropbox/zxcvbn) library while (k-)anonymously querying Troy Hunt's [`haveibeenpwned`](https://haveibeenpwned.com/) collection of +10 _billion_\* breached accounts.
 
 ![API in Action](.github/pwnage.gif?raw=true 'API in Action')
 
